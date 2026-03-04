@@ -77,12 +77,14 @@ controls:
 
 The four sensors below have built-in defaults. Just provide an `entity` and the rest is filled in automatically.
 
-| Sensor ID | Name | Unit | Min | Max | Gradient | Display Format |
-|-----------|------|------|-----|-----|----------|----------------|
-| `chlorine` | Chlorine | ppm | 0 | 10 | chlorine | numeric |
-| `ph` | pH | *(none)* | 6.0 | 9.0 | ph | numeric |
-| `salt` | Salt | ppm | 1000 | 3000 | salt | numeric |
-| `iq_sensor` | IQ Sensor | hours | 0 | 10000 | iq-sensor | hours_to_months |
+| Sensor ID | Name | Unit | Min | Max | Green Range | Gradient | Display Format |
+|-----------|------|------|-----|-----|-------------|----------|----------------|
+| `chlorine` | Chlorine | ppm | 0 | 10 | 1.0 – 5.0 ppm | standard | numeric |
+| `ph` | pH | *(none)* | 6.0 | 9.0 | 7.2 – 7.8 | standard | numeric |
+| `salt` | Salt | ppm | 1000 | 3000 | 1500 – 2000 ppm | standard | numeric |
+| `iq_sensor` | IQ Sensor | hours | 0 | 10000 | 1460+ hours (~2+ mo) | depletion | hours_to_months |
+
+Green ranges are from official HotSpring FreshWater documentation. Yellow and red zone boundaries are inferred from ESP-IQ2020 protocol analysis and dealer reports.
 
 ### Per-sensor options
 
@@ -109,7 +111,7 @@ sensors:
 | `min` | number | Minimum value for the gauge range. |
 | `max` | number | Maximum value for the gauge range. |
 | `decimals` | number | Number of decimal places (default varies by sensor). |
-| `gradient` | string | Gradient profile: `chlorine`, `ph`, `salt` (standard red-yellow-green-yellow-red with different proportions) or `iq-sensor` (depletion: green-yellow-red). |
+| `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (green-yellow-red). |
 | `display_format` | string | `hours_to_months` converts raw hours to months via `Math.round(value / 720)`. See below. |
 
 #### display_format: hours_to_months
