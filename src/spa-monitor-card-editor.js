@@ -95,6 +95,7 @@ class SpaMonitorCardEditor extends LitElement {
               <option value="auto" ?selected=${theme === 'auto'}>Auto</option>
               <option value="light" ?selected=${theme === 'light'}>Light</option>
               <option value="dark" ?selected=${theme === 'dark'}>Dark</option>
+              <option value="glass" ?selected=${theme === 'glass'}>Glass</option>
             </select>
           </div>
         </div>

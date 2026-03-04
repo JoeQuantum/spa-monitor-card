@@ -18,7 +18,7 @@ import {
 import './spa-monitor-card-editor.js';
 
 const CARD_VERSION = '0.1.0';
-const VALID_THEMES = ['auto', 'light', 'dark'];
+const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
 
 let cardInstanceId = 0;
 
@@ -105,11 +105,13 @@ class SpaMonitorCard extends LitElement {
       return html``;
     }
 
-    const isDark = this._config.theme === 'dark'
-      || (this._config.theme === 'auto' && this.hass.themes?.darkMode);
+    const theme = this._config.theme;
+    const isDark = theme === 'dark'
+      || (theme === 'auto' && this.hass.themes?.darkMode);
+    const isGlass = theme === 'glass';
 
     return html`
-      <div class="card ${isDark ? 'dark' : ''}">
+      <div class="card ${isDark ? 'dark' : ''} ${isGlass ? 'glass' : ''}">
         ${this._config.title ? this._renderHeader() : ''}
         ${this._renderGauges()}
         ${this._hasControls() ? html`

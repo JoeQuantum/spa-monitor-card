@@ -4,8 +4,8 @@ export const styles = css`
   /* ===== Card Container (glassmorphism) ===== */
   :host {
     --spa-card-bg: rgba(255, 255, 255, 0.72);
-    --spa-card-border: rgba(0, 0, 0, 0.06);
-    --spa-card-shadow: 0 2px 16px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.03);
+    --spa-card-border: rgba(0, 0, 0, 0.12);
+    --spa-card-shadow: 0 2px 16px rgba(0, 0, 0, 0.08), 0 0 0 0.5px rgba(0, 0, 0, 0.06);
     --spa-card-radius: 16px;
     --spa-card-blur: 40px;
     --spa-card-padding: 16px;
@@ -255,6 +255,26 @@ export const styles = css`
     --spa-text-primary: rgba(255, 255, 255, 0.9);
     --spa-text-secondary: rgba(255, 255, 255, 0.6);
     --spa-text-tertiary: rgba(255, 255, 255, 0.35);
+    --spa-divider-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ===== Glass mode (visionOS glassmorphism) ===== */
+  .card.glass {
+    --spa-card-bg: rgba(255, 255, 255, 0.08);
+    --spa-card-border: rgba(255, 255, 255, 0.12);
+    --spa-card-shadow: 0 2px 16px rgba(0, 0, 0, 0.15);
+    --spa-card-blur: 40px;
+    --spa-header-color: rgba(255, 255, 255, 0.85);
+    --spa-label-color: rgba(255, 255, 255, 0.7);
+    --spa-value-color: rgba(255, 255, 255, 0.55);
+    --spa-bar-border: rgba(255, 255, 255, 0.18);
+    --spa-control-bg: rgba(255, 255, 255, 0.08);
+    --spa-control-border: rgba(255, 255, 255, 0.12);
+    --spa-control-active-bg: rgba(255, 255, 255, 0.2);
+    --spa-control-active-border: rgba(255, 255, 255, 0.35);
+    --spa-text-primary: rgba(255, 255, 255, 0.9);
+    --spa-text-secondary: rgba(255, 255, 255, 0.65);
+    --spa-text-tertiary: rgba(255, 255, 255, 0.4);
     --spa-divider-color: rgba(255, 255, 255, 0.08);
   }
 `;
