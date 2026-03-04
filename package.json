@@ -1,28 +1,36 @@
 {
-  "name": "pool-monitor-card",
-  "version": "2.9.0",
+  "name": "spa-monitor-card",
+  "version": "0.1.0",
+  "description": "Home Assistant Lovelace card for HotSpring/ESP-IQ2020 water care monitoring with vertical bar gauges and salt system controls",
   "type": "module",
-  "description": "Pool Monitor Card for Home Assistant",
-  "main": "dist/pool-monitor-card.js",
+  "main": "dist/spa-monitor-card.js",
   "scripts": {
     "build": "rollup -c",
-    "dev": "rollup -c --watch",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "eslint \"src/**/*.js\"",
-    "lint:fix": "eslint \"src/**/*.js\" --fix"
+    "watch": "rollup -c --watch"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoeQuantum/spa-monitor-card"
+  },
+  "keywords": [
+    "home-assistant",
+    "lovelace",
+    "custom-card",
+    "hot-tub",
+    "spa",
+    "water-quality",
+    "esp-iq2020",
+    "hotspring"
+  ],
+  "author": "",
   "license": "MIT",
+  "dependencies": {
+    "lit-element": "^2.4.0",
+    "lit-html": "^1.4.1"
+  },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-replace": "^6.0.2",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@vitest/coverage-v8": "^4.0.0",
-    "eslint": "^9.20.0",
-    "jsdom": "^26.0.0",
-    "lit": "^3.3.0",
-    "rollup": "^4.34.0",
-    "vitest": "^4.0.0"
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "rollup": "^3.0.0",
+    "@rollup/plugin-terser": "^0.4.0"
   }
 }

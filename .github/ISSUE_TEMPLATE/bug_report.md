@@ -25,7 +25,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
 
-- Garbage Collection Card version: [e.g. 1.15.1]
+- Spa Monitor Card version: [e.g. 0.1.0]
 - Browser: [e.g. chrome, safari]
 - Browser language: [e.g. Swedish]
 

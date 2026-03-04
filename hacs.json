@@ -1,6 +1,5 @@
 {
-  "name": "Pool Monitor Card",
-  "content_in_root": false,
-  "filename": "pool-monitor-card.js",
-  "render_readme": true
+  "name": "Spa Monitor Card",
+  "render_readme": true,
+  "filename": "spa-monitor-card.js"
 }
