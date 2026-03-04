@@ -70,7 +70,7 @@ class SpaMonitorCard extends LitElement {
       resolvedSensors[sensorId] = {
         ...preset,
         ...sensorConfig,
-        gradient: sensorConfig.gradient || preset.gradient || 'standard',
+        gradient: sensorConfig.gradient || preset.gradient || 'chlorine',
       };
       if (!resolvedSensors[sensorId].entity) {
         throw new Error(`Sensor "${sensorId}" requires an entity.`);

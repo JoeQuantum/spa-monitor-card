@@ -90,27 +90,55 @@ export const styles = css`
     border-radius: var(--spa-bar-radius);
     box-shadow: inset 0 0 0 1.5px var(--spa-bar-border), inset 0 1px 2px rgba(0, 0, 0, 0.08);
   }
-  .gauge-bar.gradient-standard {
+  .gauge-bar.gradient-chlorine {
     background: linear-gradient(to top,
       var(--spa-color-danger) 0%,
-      var(--spa-color-danger) 8%,
+      var(--spa-color-danger) 5%,
+      var(--spa-color-caution) 5%,
       var(--spa-color-caution) 10%,
-      var(--spa-color-caution) 18%,
-      var(--spa-color-ideal) 20%,
-      var(--spa-color-ideal) 80%,
-      var(--spa-color-caution) 82%,
-      var(--spa-color-caution) 90%,
-      var(--spa-color-danger) 92%,
+      var(--spa-color-ideal) 10%,
+      var(--spa-color-ideal) 50%,
+      var(--spa-color-caution) 50%,
+      var(--spa-color-caution) 80%,
+      var(--spa-color-danger) 80%,
       var(--spa-color-danger) 100%
     );
   }
-  .gauge-bar.gradient-depletion {
+  .gauge-bar.gradient-ph {
     background: linear-gradient(to top,
       var(--spa-color-danger) 0%,
-      var(--spa-color-danger) 8%,
-      var(--spa-color-caution) 10%,
-      var(--spa-color-caution) 18%,
-      var(--spa-color-ideal) 20%,
+      var(--spa-color-danger) 27%,
+      var(--spa-color-caution) 27%,
+      var(--spa-color-caution) 40%,
+      var(--spa-color-ideal) 40%,
+      var(--spa-color-ideal) 60%,
+      var(--spa-color-caution) 60%,
+      var(--spa-color-caution) 73%,
+      var(--spa-color-danger) 73%,
+      var(--spa-color-danger) 100%
+    );
+  }
+  .gauge-bar.gradient-salt {
+    background: linear-gradient(to top,
+      var(--spa-color-danger) 0%,
+      var(--spa-color-danger) 12%,
+      var(--spa-color-caution) 12%,
+      var(--spa-color-caution) 25%,
+      var(--spa-color-ideal) 25%,
+      var(--spa-color-ideal) 50%,
+      var(--spa-color-caution) 50%,
+      var(--spa-color-caution) 75%,
+      var(--spa-color-danger) 75%,
+      var(--spa-color-danger) 100%
+    );
+  }
+  .gauge-bar.gradient-iq-sensor {
+    background: linear-gradient(to top,
+      var(--spa-color-danger) 0%,
+      var(--spa-color-danger) 1%,
+      var(--spa-color-caution) 1%,
+      var(--spa-color-caution) 15%,
+      var(--spa-color-ideal) 15%,
       var(--spa-color-ideal) 100%
     );
   }

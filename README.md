@@ -79,10 +79,10 @@ The four sensors below have built-in defaults. Just provide an `entity` and the 
 
 | Sensor ID | Name | Unit | Min | Max | Gradient | Display Format |
 |-----------|------|------|-----|-----|----------|----------------|
-| `chlorine` | Chlorine | ppm | 0 | 6 | standard | numeric |
-| `ph` | pH | *(none)* | 7.0 | 8.0 | standard | numeric |
-| `salt` | Salt | ppm | 1200 | 2400 | standard | numeric |
-| `iq_sensor` | IQ Sensor | *(none)* | 0 | 10000 | depletion | hours_to_months |
+| `chlorine` | Chlorine | ppm | 0 | 10 | chlorine | numeric |
+| `ph` | pH | *(none)* | 6.0 | 9.0 | ph | numeric |
+| `salt` | Salt | ppm | 1000 | 3000 | salt | numeric |
+| `iq_sensor` | IQ Sensor | hours | 0 | 10000 | iq-sensor | hours_to_months |
 
 ### Per-sensor options
 
@@ -109,7 +109,7 @@ sensors:
 | `min` | number | Minimum value for the gauge range. |
 | `max` | number | Maximum value for the gauge range. |
 | `decimals` | number | Number of decimal places (default varies by sensor). |
-| `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (red-yellow-green). |
+| `gradient` | string | Gradient profile: `chlorine`, `ph`, `salt` (standard red-yellow-green-yellow-red with different proportions) or `iq-sensor` (depletion: green-yellow-red). |
 | `display_format` | string | `hours_to_months` converts raw hours to months via `Math.round(value / 720)`. See below. |
 
 #### display_format: hours_to_months
@@ -126,6 +126,58 @@ The FreshWater IQ sensor starts at ~10,000 hours when a new cartridge is install
 | `boost` | switch | `switch.*_salt_boost` | Salt boost toggle. Rendered as a tap button with lightning icon. |
 
 Both controls are optional. Omit the `controls` section entirely to hide the controls row and divider.
+
+---
+
+## Sensor Ranges
+
+Each sensor has a color-coded gradient bar with green (ideal), yellow (caution), and red (danger) zones. The green zones are based on **HotSpring official documentation** for FreshWater IQ salt systems. Yellow and red boundaries are inferred from ESP-IQ2020 protocol analysis and dealer service reports.
+
+### Chlorine
+
+| Zone | Range | Bar Position |
+|------|-------|-------------|
+| Red (low) | 0 – 0.5 ppm | 0% – 5% |
+| Yellow (low) | 0.5 – 1.0 ppm | 5% – 10% |
+| **Green (ideal)** | **1.0 – 5.0 ppm** | **10% – 50%** |
+| Yellow (high) | 5.0 – 8.0 ppm | 50% – 80% |
+| Red (high) | 8.0 – 10.0 ppm | 80% – 100% |
+
+Range: 0 – 10 ppm. The FreshWater salt system targets 1 – 5 ppm free chlorine as measured by the IQ sensor.
+
+### pH
+
+| Zone | Range | Bar Position |
+|------|-------|-------------|
+| Red (low) | 6.0 – 6.8 | 0% – 27% |
+| Yellow (low) | 6.8 – 7.2 | 27% – 40% |
+| **Green (ideal)** | **7.2 – 7.8** | **40% – 60%** |
+| Yellow (high) | 7.8 – 8.2 | 60% – 73% |
+| Red (high) | 8.2 – 9.0 | 73% – 100% |
+
+Range: 6.0 – 9.0 pH. HotSpring recommends 7.2 – 7.8 for bather comfort and sanitizer efficacy.
+
+### Salt
+
+| Zone | Range | Bar Position |
+|------|-------|-------------|
+| Red (low) | 1000 – 1250 ppm | 0% – 12% |
+| Yellow (low) | 1250 – 1500 ppm | 12% – 25% |
+| **Green (ideal)** | **1500 – 2000 ppm** | **25% – 50%** |
+| Yellow (high) | 2000 – 2500 ppm | 50% – 75% |
+| Red (high) | 2500 – 3000 ppm | 75% – 100% |
+
+Range: 1000 – 3000 ppm, target 1750 ppm. **Note:** The IQ module reports a ppm-equivalent value derived from conductivity/TDS measurement, not a direct chemical assay. Actual sodium chloride concentration may differ from the reported value.
+
+### IQ Sensor (cartridge life)
+
+| Zone | Range | Bar Position |
+|------|-------|-------------|
+| Red (depleted) | 0 hours | 0% – 1% |
+| Yellow (low life) | 1 – 1460 hours | 1% – 15% |
+| **Green (good life)** | **1460 – 10000 hours** | **15% – 100%** |
+
+Range: 0 – 10,000 hours. Displayed as months via `Math.round(value / 720)` (720 hours per 30-day month). A new FreshWater IQ cartridge starts at ~10,000 hours (~14 months). The yellow zone begins at ~2 months remaining.
 
 ---
 
