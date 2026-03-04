@@ -250,7 +250,7 @@ export const styles = css`
     --spa-bar-border: rgba(255, 255, 255, 0.15);
     --spa-control-bg: rgba(255, 255, 255, 0.06);
     --spa-control-border: rgba(255, 255, 255, 0.1);
-    --spa-control-active-bg: rgba(255, 255, 255, 0.18);
+    --spa-control-active-bg: rgba(255, 255, 255, 0.35);
     --spa-control-active-border: rgba(255, 255, 255, 0.3);
     --spa-text-primary: rgba(255, 255, 255, 0.9);
     --spa-text-secondary: rgba(255, 255, 255, 0.6);
@@ -270,7 +270,7 @@ export const styles = css`
     --spa-bar-border: rgba(255, 255, 255, 0.18);
     --spa-control-bg: rgba(255, 255, 255, 0.08);
     --spa-control-border: rgba(255, 255, 255, 0.12);
-    --spa-control-active-bg: rgba(255, 255, 255, 0.2);
+    --spa-control-active-bg: rgba(255, 255, 255, 0.35);
     --spa-control-active-border: rgba(255, 255, 255, 0.35);
     --spa-text-primary: rgba(255, 255, 255, 0.9);
     --spa-text-secondary: rgba(255, 255, 255, 0.65);
