@@ -261,7 +261,7 @@ class SpaMonitorCard extends LitElement {
   _formatValue(value, sensor) {
     if (isNaN(value)) return '---';
     if (sensor.display_format === 'hours_to_months') {
-      return `${Math.round((value / sensor.max) * 12)} mo`;
+      return `${Math.round(value / 720)} mo`;
     }
     const decimals = sensor.decimals ?? 1;
     const formatted = decimals === 0

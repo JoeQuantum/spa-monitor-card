@@ -70,7 +70,7 @@ Reference: React mockup in `reference/water-quality-mockup.jsx`
 | chlorine | Chlorine | ppm | 0 | 6 | standard | sensor.*_iq_chlorine |
 | ph | pH | (none) | 7.0 | 8.0 | standard | sensor.*_iq_ph |
 | salt | Salt | ppm | 1200 | 2400 | standard | sensor.*_iq_salt |
-| iq_sensor | IQ Sensor | (none) | 0 | 10000 | depletion | sensor.*_iq_hours_left |
+| iq_sensor | IQ Sensor | hours | 0 | 10000 | depletion | sensor.*_iq_hours_left |
 
 ### Control entities (separate config section)
 
@@ -92,7 +92,7 @@ sensors:
     entity: sensor.hot_tub_iq_salt
   iq_sensor:
     entity: sensor.hot_tub_iq_hours_left
-    display_value_entity: sensor.hot_tub_iq_months_left  # optional: show "10 mo" instead of raw hours
+    # display_format: hours_to_months (preset default, converts via value/720)
 controls:
   output_level:
     entity: number.hot_spring_aria_salt_power
@@ -228,7 +228,7 @@ spa-monitor-card/
 - Handle missing optional controls config (hide controls row)
 - Handle missing sensors (only render configured ones)
 - Clamp indicator to 0-100% range
-- Add display_value_entity support for IQ Sensor ("10 mo" display)
+- Add display_format support for IQ Sensor (hours_to_months: value/720)
 - Error card rendering for bad config
 
 ### Phase 7: Package + publish (15 min)

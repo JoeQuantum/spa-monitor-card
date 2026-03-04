@@ -68,7 +68,7 @@ The four sensors below have built-in defaults. Just provide an `entity` and the 
 | `chlorine` | Chlorine | ppm | 0 | 6 | standard | numeric |
 | `ph` | pH | *(none)* | 7.0 | 8.0 | standard | numeric |
 | `salt` | Salt | ppm | 1200 | 2400 | standard | numeric |
-| `iq_sensor` | IQ Sensor | *(none)* | 0 | 10000 | depletion | hours_to_months |
+| `iq_sensor` | IQ Sensor | hours | 0 | 10000 | depletion | hours_to_months |
 
 ### Per-sensor options
 
@@ -94,7 +94,7 @@ sensors:
 | `min` | number | Minimum value for the gauge range. |
 | `max` | number | Maximum value for the gauge range. |
 | `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (red-yellow-green). |
-| `display_format` | string | `hours_to_months` converts raw hours to months using the formula `round((value / max) * 12)`. |
+| `display_format` | string | `hours_to_months` converts raw hours to months using `round(value / 720)` (720 hours per 30-day month). The FreshWater IQ sensor starts at ~10,000 hours when a new cartridge is installed. |
 
 ### Controls
 
