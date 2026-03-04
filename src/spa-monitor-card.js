@@ -70,7 +70,7 @@ class SpaMonitorCard extends LitElement {
       resolvedSensors[sensorId] = {
         ...preset,
         ...sensorConfig,
-        gradient: sensorConfig.gradient || preset.gradient || 'chlorine',
+        gradient: sensorConfig.gradient || preset.gradient || 'standard',
       };
       if (!resolvedSensors[sensorId].entity) {
         throw new Error(`Sensor "${sensorId}" requires an entity.`);
@@ -146,7 +146,7 @@ class SpaMonitorCard extends LitElement {
     const value = isUnavailable ? null : parseFloat(stateObj.state);
 
     const gradientClass = `gradient-${sensor.gradient || 'standard'}`;
-    const position = isUnavailable ? 0 : getIndicatorPosition(value, sensor.min, sensor.max);
+    const position = isUnavailable ? 0 : getIndicatorPosition(value, sensor);
 
     let displayValue = '---';
     if (!isUnavailable) {
