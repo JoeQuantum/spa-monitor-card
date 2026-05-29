@@ -1,6 +1,6 @@
 {
   "name": "spa-monitor-card",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Home Assistant Lovelace card for HotSpring/ESP-IQ2020 water care monitoring with vertical bar gauges and salt system controls",
   "type": "module",
   "main": "dist/spa-monitor-card.js",

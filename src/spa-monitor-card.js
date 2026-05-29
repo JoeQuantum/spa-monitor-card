@@ -17,7 +17,7 @@ import {
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
 
-const CARD_VERSION = '0.1.0';
+const CARD_VERSION = '0.1.1';
 const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
 
 let cardInstanceId = 0;
@@ -263,7 +263,10 @@ class SpaMonitorCard extends LitElement {
   _formatValue(value, sensor) {
     if (isNaN(value)) return '---';
     if (sensor.display_format === 'hours_to_months') {
-      return `${Math.round(value / 720)} mo`;
+      const reserve = sensor.hours_reserve ?? 0;
+      const hoursPerMonth = sensor.hours_per_month ?? 730.5;
+      const months = Math.max(0, (value - reserve) / hoursPerMonth);
+      return `${Math.round(months)} mo`;
     }
     const decimals = sensor.decimals ?? 1;
     const formatted = decimals === 0

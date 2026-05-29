@@ -65,17 +65,21 @@ export const SENSOR_PRESETS = {
   iq_sensor: {
     name: 'IQ Sensor',
     unit: 'hours',
-    min: 0,
+    min: 508,
     max: 10000,
     setpoint: 5000,
     decimals: 0,
     gradient: 'depletion',
     display_format: 'hours_to_months',
+    // FreshWater IQ stops sampling once the cartridge has 508 hours of
+    // reserve left, so usable life ends there rather than at 0.
+    hours_reserve: 508,
+    hours_per_month: 730.5,
     zones: [
       { value: 10000, position: 0 },
-      { value: 1460, position: 80 },
-      { value: 146, position: 90 },
-      { value: 0, position: 100 },
+      { value: 1969, position: 80 },
+      { value: 654, position: 90 },
+      { value: 508, position: 100 },
     ],
   },
 };
