@@ -82,7 +82,7 @@ The four sensors below have built-in defaults. Just provide an `entity` and the 
 | `chlorine` | Chlorine | ppm | 0 | 10 | 1.0 – 5.0 ppm | standard | numeric |
 | `ph` | pH | *(none)* | 6.0 | 9.0 | 7.2 – 7.8 | standard | numeric |
 | `salt` | Salt | ppm | 1000 | 3000 | 1500 – 2000 ppm | standard | numeric |
-| `iq_sensor` | IQ Sensor | hours | 0 | 10000 | 1460+ hours (~2+ mo) | depletion | hours_to_months |
+| `iq_sensor` | IQ Sensor | hours | 508 | 10000 | 1969+ hours (~2+ mo) | depletion | hours_to_months |
 
 Green ranges are from official HotSpring FreshWater documentation. Yellow and red zone boundaries are inferred from ESP-IQ2020 protocol analysis and dealer reports.
 
@@ -112,13 +112,15 @@ sensors:
 | `max` | number | Maximum value for the gauge range. |
 | `decimals` | number | Number of decimal places (default varies by sensor). |
 | `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (green-yellow-red). |
-| `display_format` | string | `hours_to_months` converts raw hours to months via `Math.round(value / 720)`. See below. |
+| `display_format` | string | `hours_to_months` converts raw hours to months. See below. |
+| `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset sets `508` to match the FreshWater IQ forced-stop threshold. |
+| `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (8760 / 12). |
 
 #### display_format: hours_to_months
 
-The `hours_to_months` format divides the raw sensor value by 720 (hours per 30-day month) and rounds to the nearest integer. This is the default for the `iq_sensor` preset.
+The `hours_to_months` format computes `max(0, (value − hours_reserve) / hours_per_month)` and rounds to the nearest integer. This is the default for the `iq_sensor` preset.
 
-The FreshWater IQ sensor starts at ~10,000 hours when a new cartridge is installed and counts down. With this format, 10000 hours displays as "14 mo" and 720 hours displays as "1 mo".
+A new FreshWater IQ cartridge starts at ~10,000 hours and counts down, but the system stops sampling once 508 hours of reserve remain. The `iq_sensor` preset therefore sets `hours_reserve: 508` and `hours_per_month: 730.5`, giving ~13 months of usable life from a fresh cartridge. Override either value per-sensor to model different cartridge specs.
 
 ### Controls
 
@@ -175,11 +177,11 @@ Range: 1000 – 3000 ppm, target 1750 ppm. **Note:** The IQ module reports a ppm
 
 | Zone | Range | Bar Position |
 |------|-------|-------------|
-| Red (depleted) | 0 hours | 0% – 1% |
-| Yellow (low life) | 1 – 1460 hours | 1% – 15% |
-| **Green (good life)** | **1460 – 10000 hours** | **15% – 100%** |
+| Red (depleted) | ≤ 508 hours | 0% – 1% |
+| Yellow (low life) | 508 – 1969 hours | 1% – 20% |
+| **Green (good life)** | **1969 – 10000 hours** | **20% – 100%** |
 
-Range: 0 – 10,000 hours. Displayed as months via `Math.round(value / 720)` (720 hours per 30-day month). A new FreshWater IQ cartridge starts at ~10,000 hours (~14 months). The yellow zone begins at ~2 months remaining.
+Range: 508 – 10,000 hours. Displayed as months via `max(0, (value − 508) / 730.5)` rounded to the nearest integer. A new FreshWater IQ cartridge starts at ~10,000 hours (~13 months); sampling stops at 508 hours (the forced-stop reserve). The yellow zone begins at ~2 months remaining.
 
 ---
 
