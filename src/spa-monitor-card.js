@@ -17,7 +17,7 @@ import {
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
 
-const CARD_VERSION = '0.1.1';
+const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
 const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
 
 let cardInstanceId = 0;

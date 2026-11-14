@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "package": "spa-monitor-card",
+  "version": "0.1.1",
+  "filename": "spa-monitor-card.js",
+  "sha256": "4dd1922cdaa8e908af5ecfbf2eac48d9402d1e0d6506f196370d04f32897a0ae",
+  "inputs": {
+    "CHANGELOG.md": "f099d140f6db39bbb2c59cc2ffa5e5e6ab83859973432950796a820531db7427",
+    "LICENSE": "4b67b69612ce9b77067a20f599142dcfa0ad89a87b275d3ac56cb4abcaac8750",
+    "hacs.json": "a02656f4888660f016d508153f1f4c7caa4f5226214a55f7bb036dc536b0c207",
+    "package-lock.json": "26429f759f16ec5b71404aeb6d86810f00cb59c37fd964622ed2d47ab3251dd5",
+    "package.json": "7104b01c858b25d126a3bc23a96fe830c8245758fd5f8c0f9b6b0adfc2aaa19a",
+    "rollup.config.js": "d19d0f5d4b809eebf4996ad665b82fabe8f1de721d600b2f38cd337a08cad551",
+    "scripts/artifact.mjs": "18f4130744bc030c87049e9b570ff0e8bba9e95610100bbf8f095b5b8e90bf68",
+    "scripts/verify-artifact.mjs": "213a97c17324757fb33acbdcff52d2f146aa01cecb9cade9df0bafc1887de266",
+    "src/sensors.js": "46118a0f224a302e6f2dc5224a89bd6282a53cf7fb0d35b6016fa4ff4f0c5e3b",
+    "src/spa-monitor-card-editor.js": "3aa92fae3cb584eb3b722db69f3000b6de89e6c2eef618d671fdad9e8b12b737",
+    "src/spa-monitor-card.js": "b0db43bde6fcf683ba766594775e063b12eed7519ddd1c36f68a1c28ed3b3071",
+    "src/styles.js": "d18b5bd0d6fd88d819ae38e8ed92bf8ee20717868b13fab4112d47bca4b397dc"
+  }
+}

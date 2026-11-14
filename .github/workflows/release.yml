@@ -6,40 +6,40 @@ on:
       - "v*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  release:
+  verify:
+    uses: ./.github/workflows/check.yml
+  publish:
+    needs: verify
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/download-artifact@v4
         with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Extract changelog section
+          name: verified-card
+          path: verified
+      - name: Recheck the verified artifact before publishing
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          awk "/^## \[$VERSION\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > release_notes.md
-          if [ ! -s release_notes.md ]; then
-            echo "::error::No CHANGELOG.md section found for version $VERSION"
-            exit 1
-          fi
-          echo "--- release notes ---"
-          cat release_notes.md
-
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          folder = Path('verified')
+          manifest = json.loads((folder / 'build-manifest.json').read_text())
+          assert manifest['filename'] == 'spa-monitor-card.js'
+          assert os.environ['RELEASE_TAG'] == 'v' + manifest['version']
+          assert hashlib.sha256((folder / manifest['filename']).read_bytes()).hexdigest() == manifest['sha256']
+          assert (folder / 'release-notes.md').read_text().strip()
+          PY
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/spa-monitor-card.js
-          body_path: release_notes.md
+          files: |
+            verified/spa-monitor-card.js
+            verified/build-manifest.json
+          body_path: verified/release-notes.md
+          fail_on_unmatched_files: true

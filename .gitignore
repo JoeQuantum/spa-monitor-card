@@ -1,5 +1,7 @@
 node_modules/
 test-results/
+playwright-report/
+dist/release-notes.md
 *.ffs_db
 
 # Claude Code working directory
