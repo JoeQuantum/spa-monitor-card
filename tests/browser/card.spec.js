@@ -97,7 +97,7 @@ test('themes, multiple cards and supported widths retain the current presentatio
   expect(new Set(ids).size).toBe(ids.length);
 });
 
-// Numeric regressions pass; two narrowly annotated C04 reproductions remain.
+// Regressions reproduced in the temporary HA environment. No expected failures.
 for (const state of ['error', '', 'NaN', 'Infinity', '7.5oops']) {
   test(`C01 rejects invalid reading ${JSON.stringify(state)}`, async ({ page }) => {
     await mount(page);
@@ -140,7 +140,6 @@ test('C04 output control honors an entity step of two', async ({ page }) => {
   await page.locator('.stepper-btn').last().click();
   const requestedValue = await page.evaluate(() => calls[0][2].value);
   assertHealthy(page);
-  test.fail(true, 'C04: step handling belongs to the controls PR');
   expect(requestedValue).toBe(6);
 });
 
@@ -163,11 +162,94 @@ test('C02 rejects nonfinite/nonpositive conversion settings with field-specific 
   }
 });
 
-test('C04 rapid increments preserve intent', async ({ page }) => {
+test('C04 rapid clicks retain desired output while the display follows reports', async ({ page }) => {
   await mount(page);
   for (let i = 0; i < 3; i++) await page.locator('.stepper-btn').last().click();
-  const values = await page.evaluate(() => calls.map(c => c[2].value));
-  assertHealthy(page);
-  test.fail(true, 'C04: desired-state tracking belongs to the controls PR');
-  expect(values).toEqual([4, 5, 6]);
+  expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([4, 5, 6]);
+  await expect(page.locator('.output-level-value')).toHaveText('3');
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'true');
+  await updateState(page, 'number.output', '4');
+  await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls.at(-1)[2].value)).toBe(7);
+  await updateState(page, 'number.output', '7');
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.output-level-value')).toHaveText('7');
+});
+
+test('C04 service calls serialize and coalesce without treating success as a report', async ({ page }) => {
+  await mount(page);
+  await page.evaluate(() => { window.resolvers = []; card.hass.callService = (...args) => { calls.push(args); return new Promise(resolve => resolvers.push(resolve)); }; });
+  for (let i = 0; i < 3; i++) await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([4]);
+  await page.evaluate(() => resolvers.shift()());
+  await expect.poll(() => page.evaluate(() => calls.map(c => c[2].value))).toEqual([4, 6]);
+  await page.evaluate(() => resolvers.shift()());
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('.output-level-value')).toHaveText('3');
+  await updateState(page, 'number.output', '6');
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'false');
+});
+
+test('C04 service rejection clears queued intent and next click uses reported state', async ({ page }) => {
+  await mount(page);
+  await page.evaluate(() => { card.hass.callService = (...args) => { calls.push(args); return Promise.reject(new Error('Service rejected')); }; });
+  await page.locator('.stepper-btn').last().click();
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.output-level')).toHaveAttribute('title', /failed/);
+  await page.evaluate(() => { card.hass.callService = (...args) => { calls.push(args); return Promise.resolve(); }; });
+  await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([4, 4]);
+});
+
+test('C04 reversing queued clicks back to the in-flight value can still be confirmed', async ({ page }) => {
+  await mount(page);
+  await page.evaluate(() => { card.hass.callService = (...args) => { calls.push(args); return new Promise(resolve => window.resolveCommand = resolve); }; });
+  await page.locator('.stepper-btn').last().click();
+  await page.locator('.stepper-btn').last().click();
+  await page.locator('.stepper-btn').first().click();
+  await page.evaluate(() => resolveCommand());
+  expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([4]);
+  await updateState(page, 'number.output', '4');
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'false');
+  await page.locator('.stepper-btn').first().click();
+  expect(await page.evaluate(() => calls.at(-1)[2].value)).toBe(3);
+});
+
+test('C04 lost reports time out without retries or fabricated state', async ({ page }) => {
+  await page.clock.install();
+  await mount(page);
+  await page.locator('.stepper-btn').last().click();
+  await page.clock.fastForward(15001);
+  await expect(page.locator('.output-level')).toHaveAttribute('aria-busy', 'false');
+  await expect(page.locator('.output-level')).toHaveAttribute('title', /timed out/);
+  await expect(page.locator('.output-level-value')).toHaveText('3');
+  expect(await page.evaluate(() => calls.length)).toBe(1);
+  await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls.at(-1)[2].value)).toBe(4);
+});
+
+test('C04 unavailable or replaced entities discard intent and late service completions', async ({ page }) => {
+  await mount(page);
+  await page.evaluate(() => { card.hass.callService = (...args) => { calls.push(args); return new Promise(resolve => window.resolveOld = resolve); }; });
+  await page.locator('.stepper-btn').last().click();
+  await page.locator('.stepper-btn').last().click();
+  await updateState(page, 'number.output', 'unavailable');
+  await page.evaluate(() => resolveOld());
+  expect(await page.evaluate(() => calls.length)).toBe(1);
+  await updateState(page, 'number.output', '2');
+  await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls.at(-1)[2].value)).toBe(3);
+  await page.evaluate(() => card.setConfig({ ...card.getConfig(), controls: {} }));
+  await page.evaluate(() => resolveOld());
+  expect(await page.evaluate(() => calls.length)).toBe(2);
+});
+
+test('C04 fractional steps and boundary buttons prevent redundant requests', async ({ page }) => {
+  await mount(page, { states: { ...fixture.states, 'number.output': { state: '0.1', attributes: { min: .1, max: .9, step: .2 } } } });
+  await expect(page.locator('.stepper-btn').first()).toBeDisabled();
+  for (let i = 0; i < 4; i++) await page.locator('.stepper-btn').last().click();
+  await expect(page.locator('.stepper-btn').last()).toBeDisabled();
+  expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([.3, .5, .7, .9]);
+  await page.evaluate(() => { card._setOutputLevel(NaN); card._setOutputLevel(Infinity); card._setOutputLevel('7.5oops'); card._setOutputLevel(.4); card._setOutputLevel(1); });
+  expect(await page.evaluate(() => calls.length)).toBe(4);
 });

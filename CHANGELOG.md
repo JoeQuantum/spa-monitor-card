@@ -10,6 +10,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 - Reject malformed and nonfinite readings without drawing a gauge marker; preserve valid zero values and recovery.
 - Disable output controls for invalid states or constraints and reject invalid service values.
 - Validate positive finite `hours_per_month` and finite nonnegative `hours_reserve` with field-specific errors.
+- Honor output entity min/max/step, including fractional steps; disable ineffective boundary actions.
+- Retain the latest requested output across rapid clicks, serialize/coalesce service calls, and keep displaying reported state. Clear pending intent on failure, a 15-second report timeout, disconnection or an entity change; never retry automatically.
 
 ### Development
 

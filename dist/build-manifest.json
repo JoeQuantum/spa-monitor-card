@@ -3,9 +3,9 @@
   "package": "spa-monitor-card",
   "version": "0.1.1",
   "filename": "spa-monitor-card.js",
-  "sha256": "29ad0d83dd7ed2119e0e4a350ea602634fa60ce928b6829ae3a64cd1b6b4d9c9",
+  "sha256": "e7ab9b00b300fa69013f2dc2159c07c01170f3aca7af428fb6dceceed9e9a5d8",
   "inputs": {
-    "CHANGELOG.md": "3886326ffbe7874ea57de7300b885da13dac572c7af6c9eca9dcf1fda056ee17",
+    "CHANGELOG.md": "3a1a313959f8a68ac29e65f225d30b06f35b67f790097fca0eabf1a15639adab",
     "LICENSE": "4b67b69612ce9b77067a20f599142dcfa0ad89a87b275d3ac56cb4abcaac8750",
     "hacs.json": "a02656f4888660f016d508153f1f4c7caa4f5226214a55f7bb036dc536b0c207",
     "package-lock.json": "26429f759f16ec5b71404aeb6d86810f00cb59c37fd964622ed2d47ab3251dd5",
@@ -13,10 +13,10 @@
     "rollup.config.js": "d19d0f5d4b809eebf4996ad665b82fabe8f1de721d600b2f38cd337a08cad551",
     "scripts/artifact.mjs": "18f4130744bc030c87049e9b570ff0e8bba9e95610100bbf8f095b5b8e90bf68",
     "scripts/verify-artifact.mjs": "213a97c17324757fb33acbdcff52d2f146aa01cecb9cade9df0bafc1887de266",
-    "src/numbers.js": "6f75e4061573474ccc7e96ae4d0bfeada0ce2bcee926c3800d2721e0f91d5333",
+    "src/numbers.js": "a697007524c43f54d080e9a09f3242efff2a9082caf64e68d2aeccacd5afadbd",
     "src/sensors.js": "46118a0f224a302e6f2dc5224a89bd6282a53cf7fb0d35b6016fa4ff4f0c5e3b",
     "src/spa-monitor-card-editor.js": "3aa92fae3cb584eb3b722db69f3000b6de89e6c2eef618d671fdad9e8b12b737",
-    "src/spa-monitor-card.js": "4277833c75d2d41d39ea9b696444decb968201ee450e79f880afdce7ba4f048c",
+    "src/spa-monitor-card.js": "53a68b8e3a70d330dc85c3a70be9a2e555b5c0ab5faba02670225bfb07a20e89",
     "src/styles.js": "d18b5bd0d6fd88d819ae38e8ed92bf8ee20717868b13fab4112d47bca4b397dc"
   }
 }

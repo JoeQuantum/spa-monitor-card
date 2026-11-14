@@ -131,10 +131,18 @@ A new FreshWater IQ cartridge starts at ~10,000 hours and counts down, but the s
 
 | Control | Type | Entity pattern | Description |
 |---------|------|----------------|-------------|
-| `output_level` | number | `number.*_salt_power` | Salt system output stepper. Min/max and validity come from the entity; invalid states disable control. Step handling is completed by the next stacked PR. |
+| `output_level` | number | `number.*_salt_power` | Salt system output stepper. Min/max/step come from the entity; unavailable or invalid states disable control. |
 | `boost` | switch | `switch.*_salt_boost` | Salt boost toggle. Rendered as a tap button with lightning icon. |
 
 Both controls are optional. Omit the `controls` section entirely to hide the controls row and divider.
+
+Output clicks build on the latest requested value while the displayed number
+continues to show the device report. Calls are serialized; clicks during a call
+coalesce to the latest target. The output control's tooltip identifies pending,
+failed or timed-out requests. A matching report settles the request; service
+success alone does not. Pending intent clears after 15 seconds without matching
+feedback, on service failure, unavailability, changed constraints/entity, or
+removing the card. No automatic retries or reconnect replay are performed.
 
 ---
 
