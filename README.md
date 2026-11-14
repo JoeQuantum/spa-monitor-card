@@ -120,13 +120,18 @@ sensors:
 
 The `hours_to_months` format computes `max(0, (value − hours_reserve) / hours_per_month)` and rounds to the nearest integer. This is the default for the `iq_sensor` preset.
 
+`hours_per_month` must be a finite number greater than zero, and `hours_reserve`
+must be a finite nonnegative number. Invalid options produce a field-specific
+configuration error. Malformed or nonfinite sensor states show `---` without a
+marker; numeric zero remains a valid reading.
+
 A new FreshWater IQ cartridge starts at ~10,000 hours and counts down, but the system stops sampling once 508 hours of reserve remain. The `iq_sensor` preset therefore sets `hours_reserve: 508` and `hours_per_month: 730.5`, giving ~13 months of usable life from a fresh cartridge. Override either value per-sensor to model different cartridge specs.
 
 ### Controls
 
 | Control | Type | Entity pattern | Description |
 |---------|------|----------------|-------------|
-| `output_level` | number | `number.*_salt_power` | Salt system output level (0-10). Rendered as a stepper with +/- buttons. Min/max read from entity attributes. |
+| `output_level` | number | `number.*_salt_power` | Salt system output stepper. Min/max and validity come from the entity; invalid states disable control. Step handling is completed by the next stacked PR. |
 | `boost` | switch | `switch.*_salt_boost` | Salt boost toggle. Rendered as a tap button with lightning icon. |
 
 Both controls are optional. Omit the `controls` section entirely to hide the controls row and divider.

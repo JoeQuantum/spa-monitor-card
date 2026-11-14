@@ -16,6 +16,7 @@ import {
   getIndicatorPosition,
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
+import { finiteNumber, numberState } from './numbers.js';
 
 const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
 const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
@@ -74,6 +75,19 @@ class SpaMonitorCard extends LitElement {
       };
       if (!resolvedSensors[sensorId].entity) {
         throw new Error(`Sensor "${sensorId}" requires an entity.`);
+      }
+      const sensor = resolvedSensors[sensorId];
+      if (sensor.display_format === 'hours_to_months') {
+        const divisor = sensor.hours_per_month === undefined ? 730.5 : sensor.hours_per_month;
+        const reserve = sensor.hours_reserve === undefined ? 0 : sensor.hours_reserve;
+        if (typeof divisor !== 'number' || !Number.isFinite(divisor) || divisor <= 0) {
+          throw new Error(`sensors.${sensorId}.hours_per_month must be a finite number greater than zero.`);
+        }
+        if (typeof reserve !== 'number' || !Number.isFinite(reserve) || reserve < 0) {
+          throw new Error(`sensors.${sensorId}.hours_reserve must be a finite non-negative number.`);
+        }
+        sensor.hours_per_month = divisor;
+        sensor.hours_reserve = reserve;
       }
     }
 
@@ -142,8 +156,8 @@ class SpaMonitorCard extends LitElement {
 
   _renderSingleGauge(id, sensor) {
     const stateObj = this.hass.states[sensor.entity];
-    const isUnavailable = this._isUnavailable(stateObj);
-    const value = isUnavailable ? null : parseFloat(stateObj.state);
+    const value = finiteNumber(stateObj?.state);
+    const isUnavailable = value === null;
 
     const gradientClass = `gradient-${sensor.gradient || 'standard'}`;
     const position = isUnavailable ? 0 : getIndicatorPosition(value, sensor);
@@ -205,27 +219,17 @@ class SpaMonitorCard extends LitElement {
 
   _renderOutputLevel() {
     const entity = this._config.controls.output_level.entity;
-    const stateObj = this.hass.states[entity];
-    const isUnavailable = this._isUnavailable(stateObj);
-    const value = isUnavailable ? 0 : parseFloat(stateObj.state);
-    const min = stateObj?.attributes?.min ?? 0;
-    const max = stateObj?.attributes?.max ?? 10;
-
+    const current = numberState(this.hass.states[entity]);
+    const isUnavailable = current === null;
     return html`
       <div class="output-level-wrapper ${isUnavailable ? 'unavailable' : ''}">
         <span class="output-level-label">Output Level</span>
         <div class="output-level">
-          <button class="stepper-btn"
-            ?disabled=${isUnavailable}
-            @click=${() => this._setOutputLevel(Math.max(min, value - 1))}>
-            −
-          </button>
-          <span class="output-level-value">${isUnavailable ? '---' : value}</span>
-          <button class="stepper-btn"
-            ?disabled=${isUnavailable}
-            @click=${() => this._setOutputLevel(Math.min(max, value + 1))}>
-            +
-          </button>
+          <button class="stepper-btn" aria-label="Decrease output level"
+            ?disabled=${isUnavailable} @click=${() => this._adjustOutputLevel(-1)}>−</button>
+          <span class="output-level-value">${isUnavailable ? '---' : current.value}</span>
+          <button class="stepper-btn" aria-label="Increase output level"
+            ?disabled=${isUnavailable} @click=${() => this._adjustOutputLevel(1)}>+</button>
         </div>
       </div>
     `;
@@ -261,11 +265,12 @@ class SpaMonitorCard extends LitElement {
   }
 
   _formatValue(value, sensor) {
-    if (isNaN(value)) return '---';
+    if (!Number.isFinite(value)) return '---';
     if (sensor.display_format === 'hours_to_months') {
       const reserve = sensor.hours_reserve ?? 0;
       const hoursPerMonth = sensor.hours_per_month ?? 730.5;
       const months = Math.max(0, (value - reserve) / hoursPerMonth);
+      if (!Number.isFinite(months)) return '---';
       return `${Math.round(months)} mo`;
     }
     const decimals = sensor.decimals ?? 1;
@@ -283,12 +288,19 @@ class SpaMonitorCard extends LitElement {
   // SERVICE CALLS
   // ==========================================
 
+  _adjustOutputLevel(direction) {
+    const entity = this._config.controls.output_level.entity;
+    const current = numberState(this.hass.states[entity]);
+    if (!current || ![-1, 1].includes(direction)) return;
+    this._setOutputLevel(Math.max(current.min, Math.min(current.max, current.value + direction)));
+  }
+
   _setOutputLevel(value) {
     const entity = this._config.controls.output_level.entity;
-    this.hass.callService('number', 'set_value', {
-      entity_id: entity,
-      value: value,
-    });
+    const current = numberState(this.hass.states[entity]);
+    value = finiteNumber(value);
+    if (!current || value === null || value < current.min || value > current.max || value === current.value) return;
+    this.hass.callService('number', 'set_value', { entity_id: entity, value });
   }
 
   _toggleBoost() {

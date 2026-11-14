@@ -5,6 +5,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Reject malformed and nonfinite readings without drawing a gauge marker; preserve valid zero values and recovery.
+- Disable output controls for invalid states or constraints and reject invalid service values.
+- Validate positive finite `hours_per_month` and finite nonnegative `hours_reserve` with field-specific errors.
+
 ### Development
 
 - Test the shipped JavaScript bundle in a browser and explicitly track known failing cases.
