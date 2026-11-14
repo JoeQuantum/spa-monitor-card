@@ -1,91 +1,43 @@
-import { describe, test, expect } from 'vitest';
-import { POOL_SENSORS } from '../src/sensors.js';
-import { translations } from '../src/locales/translations.js';
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { SENSOR_PRESETS, getIndicatorPosition } from '../src/sensors.js';
 
-const SENSOR_KEYS = Object.keys(POOL_SENSORS);
-
-const HEATFLOW_SENSORS = ['temperature', 'chlorinator', 'pump_speed', 'light_brightness'];
-
-describe('POOL_SENSORS registry', () => {
-  test('should have 25 sensors', () => {
-    expect(SENSOR_KEYS.length).toBe(25);
-  });
-
-  test('each sensor should have required properties', () => {
-    const requiredProps = ['name', 'unit', 'setpoint', 'step', 'mode'];
-    SENSOR_KEYS.forEach(key => {
-      const sensor = POOL_SENSORS[key];
-      requiredProps.forEach(prop => {
-        expect(sensor, `${key} missing ${prop}`).toHaveProperty(prop);
-      });
-    });
-  });
-
-  test('sensor modes should be "heatflow" or "centric"', () => {
-    SENSOR_KEYS.forEach(key => {
-      expect(['heatflow', 'centric'], `${key} has invalid mode`).toContain(POOL_SENSORS[key].mode);
-    });
-  });
-
-  test('only temperature, chlorinator, pump_speed and light_brightness should be heatflow mode', () => {
-    SENSOR_KEYS.forEach(key => {
-      if (HEATFLOW_SENSORS.includes(key)) {
-        expect(POOL_SENSORS[key].mode, `${key} should be heatflow`).toBe('heatflow');
-      } else {
-        expect(POOL_SENSORS[key].mode, `${key} should be centric`).toBe('centric');
+test('the four water-care presets have finite ordered scales', () => {
+  assert.deepEqual(Object.keys(SENSOR_PRESETS), ['chlorine', 'ph', 'salt', 'iq_sensor']);
+  for (const preset of Object.values(SENSOR_PRESETS)) {
+    assert.ok(preset.min < preset.max);
+    for (let i = 0; i < preset.zones.length; i++) {
+      const zone = preset.zones[i];
+      assert.ok(Number.isFinite(zone.value) && Number.isFinite(zone.position));
+      if (i) {
+        assert.ok(zone.value < preset.zones[i - 1].value);
+        assert.ok(zone.position > preset.zones[i - 1].position);
       }
-    });
-  });
-
-  test('new equipment sensors should exist', () => {
-    expect(POOL_SENSORS).toHaveProperty('chlorinator');
-    expect(POOL_SENSORS.chlorinator.unit).toBe('%');
-    expect(POOL_SENSORS.chlorinator.setpoint).toBe(50);
-
-    expect(POOL_SENSORS).toHaveProperty('pump_speed');
-    expect(POOL_SENSORS.pump_speed.unit).toBe('%');
-
-    expect(POOL_SENSORS).toHaveProperty('light_brightness');
-    expect(POOL_SENSORS.light_brightness.unit).toBe('%');
-
-    expect(POOL_SENSORS).toHaveProperty('heat_pump_setpoint');
-    expect(POOL_SENSORS.heat_pump_setpoint.unit).toBe('°C');
-    expect(POOL_SENSORS.heat_pump_setpoint.mode).toBe('centric');
-  });
-
-  test('all sensors should have a category field', () => {
-    const validCategories = ['water_chemistry', 'chemical_balance', 'treatment', 'equipment'];
-    SENSOR_KEYS.forEach(key => {
-      expect(POOL_SENSORS[key], `${key} missing category`).toHaveProperty('category');
-      expect(validCategories, `${key} has invalid category`).toContain(POOL_SENSORS[key].category);
-    });
-  });
-
-  test('setpoint values should be numbers', () => {
-    SENSOR_KEYS.forEach(key => {
-      expect(typeof POOL_SENSORS[key].setpoint).toBe('number');
-      expect(typeof POOL_SENSORS[key].step).toBe('number');
-    });
-  });
+      assert.equal(getIndicatorPosition(zone.value, preset), Math.max(5, Math.min(95, 100 - zone.position)));
+    }
+  }
 });
 
-describe('Sensor-locale consistency', () => {
-  test('every pool sensor should have a translation in en', () => {
-    const enSensors = translations.en.sensor;
-    SENSOR_KEYS.forEach(key => {
-      expect(enSensors, `Missing en translation for sensor.${key}`).toHaveProperty(key);
-    });
-  });
+test('piecewise interpolation agrees at each segment midpoint', () => {
+  for (const preset of Object.values(SENSOR_PRESETS)) {
+    for (let i = 1; i < preset.zones.length; i++) {
+      const a = preset.zones[i - 1], b = preset.zones[i];
+      const expected = Math.max(5, Math.min(95, 100 - (a.position + b.position) / 2));
+      assert.ok(Math.abs(getIndicatorPosition((a.value + b.value) / 2, preset) - expected) < 1e-9);
+    }
+  }
+});
 
-  test('every pool sensor should have a translation in all locales', () => {
-    const locales = Object.keys(translations);
-    SENSOR_KEYS.forEach(key => {
-      locales.forEach(lang => {
-        expect(
-          translations[lang].sensor,
-          `Missing ${lang} translation for sensor.${key}`,
-        ).toHaveProperty(key);
-      });
-    });
-  });
+test('extreme finite readings clamp to the ends instead of escaping the card', () => {
+  for (const preset of Object.values(SENSOR_PRESETS)) {
+    assert.equal(getIndicatorPosition(preset.min - 100, preset), 5);
+    assert.equal(getIndicatorPosition(preset.max + 100, preset), 95);
+  }
+});
+
+test('custom scales without zones use their own bounds', () => {
+  const scale = { min: 10, max: 30 };
+  assert.equal(getIndicatorPosition(20, scale), 50);
+  assert.equal(getIndicatorPosition(15, scale), 25);
+  assert.equal(getIndicatorPosition(30, scale), 95);
 });

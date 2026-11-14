@@ -294,6 +294,8 @@ All entity pickers support domain filtering and custom entity input.
 
 ## Credits
 
+For source, tests and release instructions, see [Development](DEVELOPMENT.md).
+
 - Fork of [pool-monitor-card](https://github.com/wilsto/pool-monitor-card) by [wilsto](https://github.com/wilsto)
 - Built for the [ESP-IQ2020](https://github.com/Ylianst/ESP-IQ2020) integration by [Ylianst](https://github.com/Ylianst)
 

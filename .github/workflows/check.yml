@@ -1,0 +1,39 @@
+name: Check distributable
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npx playwright install --with-deps chromium
+      - run: npm run check
+      - name: Require the committed distributable to match this build
+        run: |
+          git ls-files --error-unmatch dist/spa-monitor-card.js dist/build-manifest.json
+          git diff --exit-code -- dist/spa-monitor-card.js dist/build-manifest.json
+      - name: Validate release metadata
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: npm run verify:artifact -- "$RELEASE_TAG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verified-card
+          path: |
+            dist/spa-monitor-card.js
+            dist/build-manifest.json
+            dist/release-notes.md
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-test-results
+          path: test-results/

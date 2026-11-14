@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { readFile, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { manifest, readJson, releaseNotes, root } from './artifact.mjs';
+
+const actual = await manifest();
+const recorded = await readJson('dist/build-manifest.json');
+assert.deepEqual(recorded, actual, 'The bundle or build inputs changed; run npm run build and test that artifact');
+const pkg = await readJson('package.json');
+const lock = await readJson('package-lock.json');
+const hacs = await readJson('hacs.json');
+assert.equal(lock.version, pkg.version);
+assert.equal(lock.packages[''].version, pkg.version);
+assert.equal(hacs.filename, actual.filename);
+assert.equal(pkg.main, `dist/${hacs.filename}`);
+const bundle = await readFile(path.join(root, pkg.main), 'utf8');
+assert.ok(bundle.startsWith(`/*! Spa Monitor Card v${pkg.version}`), 'Bundle version does not match package version');
+assert.ok(!bundle.includes('__CARD_VERSION__'), 'The console version placeholder was not replaced');
+assert.ok(bundle.includes('spa-monitor-card-editor') && bundle.includes('spa-monitor-card'), 'Bundle must include card and editor');
+const tag = process.argv[2];
+if (tag) assert.equal(tag, `v${pkg.version}`, 'Release tag must match the package version');
+const notes = releaseNotes(await readFile(path.join(root, 'CHANGELOG.md'), 'utf8'), pkg.version);
+if (tag) await writeFile(path.join(root, 'dist/release-notes.md'), notes);
+console.log(`Verified ${actual.filename} v${actual.version}; SHA-256 ${actual.sha256}`);
