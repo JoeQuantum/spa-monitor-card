@@ -16,10 +16,11 @@ import {
   getIndicatorPosition,
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
-import { finiteNumber, numberState } from './numbers.js';
+import { finiteNumber, numberState, nextNumberStep } from './numbers.js';
 
 const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
 const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
+const OUTPUT_REPORT_TIMEOUT = 15000;
 
 let cardInstanceId = 0;
 
@@ -33,6 +34,10 @@ class SpaMonitorCard extends LitElement {
   constructor() {
     super();
     this._instanceId = cardInstanceId++;
+    this._pendingOutput = null;
+    this._inflightOutput = null;
+    this._outputTimer = null;
+    this._outputError = '';
   }
 
   static get properties() {
@@ -44,6 +49,31 @@ class SpaMonitorCard extends LitElement {
 
   static get styles() {
     return styles;
+  }
+
+  get hass() { return this._hass; }
+
+  set hass(value) {
+    const previous = this._hass;
+    this._hass = value;
+    const pending = this._pendingOutput;
+    if (pending) {
+      const state = value?.states?.[pending.entity];
+      const current = numberState(state);
+      if (!current || ['min', 'max', 'step'].some(key => current[key] !== pending[key])) {
+        this._clearOutputIntent();
+      } else if (state !== previous?.states?.[pending.entity]
+          && current.value === pending.value && pending.sentValue === pending.value) {
+        // Service completion is not acknowledgement. Wait for a matching report.
+        this._clearOutputIntent();
+      }
+    }
+    this.requestUpdate('hass', previous);
+  }
+
+  disconnectedCallback() {
+    this._clearOutputIntent();
+    super.disconnectedCallback();
   }
 
   /** @returns {HTMLElement} The config editor element for the HA UI. */
@@ -91,6 +121,9 @@ class SpaMonitorCard extends LitElement {
       }
     }
 
+    if (config.controls?.output_level?.entity !== this._config?.controls?.output_level?.entity) {
+      this._clearOutputIntent();
+    }
     this._config = {
       ...config,
       title: config.title || '',
@@ -219,17 +252,34 @@ class SpaMonitorCard extends LitElement {
 
   _renderOutputLevel() {
     const entity = this._config.controls.output_level.entity;
-    const current = numberState(this.hass.states[entity]);
+    const stateObj = this.hass.states[entity];
+    const current = numberState(stateObj);
     const isUnavailable = current === null;
+    const pending = this._pendingOutput;
+    const desired = pending?.value ?? current?.value;
+    const decrease = current && nextNumberStep(desired, -1, current);
+    const increase = current && nextNumberStep(desired, 1, current);
+    const status = pending
+      ? `Requested ${pending.value}; waiting for the device report.`
+      : this._outputError;
+
     return html`
       <div class="output-level-wrapper ${isUnavailable ? 'unavailable' : ''}">
         <span class="output-level-label">Output Level</span>
-        <div class="output-level">
-          <button class="stepper-btn" aria-label="Decrease output level"
-            ?disabled=${isUnavailable} @click=${() => this._adjustOutputLevel(-1)}>−</button>
+        <div class="output-level" aria-busy=${pending ? 'true' : 'false'} title=${status}>
+          <button class="stepper-btn"
+            aria-label="Decrease output level"
+            ?disabled=${decrease === null}
+            @click=${() => this._adjustOutputLevel(-1)}>
+            −
+          </button>
           <span class="output-level-value">${isUnavailable ? '---' : current.value}</span>
-          <button class="stepper-btn" aria-label="Increase output level"
-            ?disabled=${isUnavailable} @click=${() => this._adjustOutputLevel(1)}>+</button>
+          <button class="stepper-btn"
+            aria-label="Increase output level"
+            ?disabled=${increase === null}
+            @click=${() => this._adjustOutputLevel(1)}>
+            +
+          </button>
         </div>
       </div>
     `;
@@ -288,19 +338,62 @@ class SpaMonitorCard extends LitElement {
   // SERVICE CALLS
   // ==========================================
 
+  _clearOutputIntent(error = '') {
+    clearTimeout(this._outputTimer);
+    this._outputTimer = null;
+    this._pendingOutput = null;
+    // A late service completion must not dispatch a target from an old session.
+    this._inflightOutput = null;
+    this._outputError = error;
+    this.requestUpdate();
+  }
+
   _adjustOutputLevel(direction) {
     const entity = this._config.controls.output_level.entity;
     const current = numberState(this.hass.states[entity]);
     if (!current || ![-1, 1].includes(direction)) return;
-    this._setOutputLevel(Math.max(current.min, Math.min(current.max, current.value + direction)));
+    const desired = this._pendingOutput?.value ?? current.value;
+    const next = nextNumberStep(desired, direction, current);
+    if (next !== null) this._setOutputLevel(next);
   }
 
   _setOutputLevel(value) {
     const entity = this._config.controls.output_level.entity;
     const current = numberState(this.hass.states[entity]);
     value = finiteNumber(value);
-    if (!current || value === null || value < current.min || value > current.max || value === current.value) return;
-    this.hass.callService('number', 'set_value', { entity_id: entity, value });
+    if (!current || value === null || value < current.min || value > current.max) return;
+    const ticks = (value - current.min) / current.step;
+    if (Math.abs(ticks - Math.round(ticks)) > Number.EPSILON * Math.max(1, Math.abs(ticks)) * 16) return;
+    if (value === (this._pendingOutput?.value ?? current.value)) return;
+    this._pendingOutput = { ...current, entity, value, sentValue: this._inflightOutput?.value };
+    this._outputError = '';
+    clearTimeout(this._outputTimer);
+    this._outputTimer = setTimeout(() => {
+      this._clearOutputIntent('Output request timed out; showing the reported value.');
+    }, OUTPUT_REPORT_TIMEOUT);
+    this.requestUpdate();
+    this._sendOutputIntent();
+  }
+
+  async _sendOutputIntent() {
+    if (this._inflightOutput || !this._pendingOutput) return;
+    const { entity, value } = this._pendingOutput;
+    const request = { entity, value };
+    this._inflightOutput = request;
+    this._pendingOutput.sentValue = value;
+    try {
+      await this.hass.callService('number', 'set_value', { entity_id: entity, value });
+    } catch {
+      if (this._inflightOutput === request) {
+        this._clearOutputIntent('Output request failed; showing the reported value.');
+      }
+      return;
+    }
+    if (this._inflightOutput !== request) return;
+    this._inflightOutput = null;
+    // Serialize service calls; clicks made during a call coalesce to the latest
+    // desired value. Reports, not these promises, control the displayed value.
+    if (this._pendingOutput && this._pendingOutput.value !== value) this._sendOutputIntent();
   }
 
   _toggleBoost() {

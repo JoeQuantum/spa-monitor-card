@@ -19,3 +19,18 @@ export function numberState(state) {
       || value < min || value > max || !Number.isFinite((max - min) / step)) return null;
   return { value, min, max, step };
 }
+
+/** Adjacent step on the min-anchored grid, including fractional/off-grid reports. */
+export function nextNumberStep(value, direction, { min, max, step }) {
+  const ticks = (value - min) / step;
+  const tolerance = Number.EPSILON * Math.max(1, Math.abs(ticks)) * 8;
+  const index = direction > 0
+    ? Math.floor(ticks + tolerance) + 1
+    : Math.ceil(ticks - tolerance) - 1;
+  const last = Math.floor((max - min) / step + tolerance);
+  // Round binary floating-point noise, e.g. 0.1 + 0.2, before sending JSON.
+  const next = Number((min + Math.max(0, Math.min(last, index)) * step).toPrecision(15));
+  if (!Number.isFinite(next) || next < min || next > max
+      || (direction > 0 ? next <= value : next >= value)) return null;
+  return next;
+}

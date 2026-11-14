@@ -1,0 +1,101 @@
+{
+  "environment": {
+    "home_assistant": "2026.11.1",
+    "frontend": "20261028.5",
+    "python": "3.14.5",
+    "aioesphomeapi": "46.25.0"
+  },
+  "candidate_sha256": "e7ab9b00b300fa69013f2dc2159c07c01170f3aca7af428fb6dceceed9e9a5d8",
+  "boundary": "Stock HA integration/entities/Lovelace with a synthetic plaintext ESPHome native API peer; no ESP-IQ2020 firmware or spa bus; no Bluetooth adapters exposed.",
+  "results": [
+    {
+      "name": "Candidate renders four readings inside actual Lovelace",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard controls reach real HA services and native API",
+      "status": "PASS"
+    },
+    {
+      "name": "Native missing values hide marker; numeric zero recovers",
+      "status": "PASS"
+    },
+    {
+      "name": "Device disconnect disables controls and reconnect restores them",
+      "status": "PASS"
+    },
+    {
+      "name": "Real visual editor opens domain-filtered entity pickers and saves overrides",
+      "status": "PASS"
+    },
+    {
+      "name": "Light dark glass and automatic HA themes render",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop tablet and mobile widths fit without card overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "Multiple dashboard cards use distinct SVG ids",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"error\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"NaN\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"Infinity\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"7.5oops\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 invalid number disables controls and cannot send a command",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 zero divisor shows a field-specific HA configuration error",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 output honors entity step two",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 rapid increments preserve intent and wait for a matching report",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 boundary actions send no redundant native commands",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 timeout preserves report and clears pending intent without retry",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 disconnect cancels pending intent and never replays it",
+      "status": "PASS"
+    },
+    {
+      "name": "No uncaught browser exceptions across scenarios",
+      "status": "PASS"
+    }
+  ],
+  "additional_suites": {
+    "ha_api": 19,
+    "restart": 7
+  },
+  "hardware_validated": false
+}

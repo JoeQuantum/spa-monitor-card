@@ -20,7 +20,7 @@ is an alternative local check. CI uses Playwright's pinned Chromium.
 | `src/spa-monitor-card.js` | Lovelace card, readings and service interactions |
 | `src/spa-monitor-card-editor.js` | Visual configuration editor |
 | `src/sensors.js` | Presets and piecewise indicator positioning |
-| `src/numbers.js` | Strict numeric parsing and number-entity constraint validation |
+| `src/numbers.js` | Strict numeric parsing and bounded number-entity steps |
 | `src/styles.js` | Existing visual presentation |
 | `rollup.config.js` | Builds the distributable and records its inputs |
 | `dist/spa-monitor-card.js` | The single HACS and manual-installation asset |
@@ -44,11 +44,11 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **9 unit/release checks**, **15 normal browser passes**
-and **2 narrowly scoped expected failures**. Expected failures reproduce
+This branch has **11 unit/release checks**, **23 normal browser passes**
+and **0 narrowly scoped expected failures**. Expected failures reproduce
 known work in later stacked PRs; they are not fixes. Preconditions run before
 the annotation, and an unexpected pass fails the suite. The complete stack has
-23 browser passes with no expected failures. See `docs/validation/numeric.md`
+23 browser passes with no expected failures. See `docs/validation/controls.md`
 for scope, exact commands and hardware limitations.
 
 Keep the existing design baseline while fixing behavior. New visual directions
@@ -81,8 +81,9 @@ it without rebuilding. Only the publish job has `contents: write`. HACS's
 `filename` and manual installation both use `spa-monitor-card.js`.
 
 The foundation work keeps package version 0.1.1 and adds an Unreleased changelog
-entry. It does not publish or retag an existing release. GitHub-hosted workflow
-execution and an actual installed-dashboard check remain release validations.
+entry. It does not publish or retag an existing release. Real HA validation of the
+complete candidate is documented in `docs/validation/controls.md`; physical
+acceptance remains separate.
 
 ## Dependency decisions — November 13, 2026
 
