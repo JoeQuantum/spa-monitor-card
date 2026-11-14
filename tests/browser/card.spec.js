@@ -97,21 +97,34 @@ test('themes, multiple cards and supported widths retain the current presentatio
   expect(new Set(ids).size).toBe(ids.length);
 });
 
-// Reproductions only: these defects are fixed by the next two PRs.
+// Numeric regressions pass; two narrowly annotated C04 reproductions remain.
 for (const state of ['error', '', 'NaN', 'Infinity', '7.5oops']) {
   test(`C01 rejects invalid reading ${JSON.stringify(state)}`, async ({ page }) => {
-    await mount(page); await updateState(page, 'sensor.chlorine', state);
+    await mount(page);
+    await updateState(page, 'sensor.chlorine', state);
     const unavailable = /unavailable/.test(await page.locator('.gauge').first().getAttribute('class'));
-    test.fail(true, 'C01: strict finite parsing belongs to the numeric PR');
     expect(unavailable).toBe(true);
+    await expect(page.locator('.gauge').first().locator('.gauge-indicator')).toHaveCount(0);
+    await expect(page.locator('.gauge-value').first()).toHaveText('---');
+    await updateState(page, 'sensor.chlorine', '0');
+    await expect(page.locator('.gauge-value').first()).toHaveText('0.0 ppm');
+    await expect(page.locator('.gauge').first().locator('.gauge-indicator')).toHaveCount(1);
   });
 }
+
 test('C01 invalid number never sends a service command', async ({ page }) => {
   await mount(page); await updateState(page, 'number.output', 'error');
   const disabled = await page.locator('.stepper-btn').last().isDisabled();
-  test.fail(true, 'C01: numeric control guards belong to the numeric PR');
   expect(disabled).toBe(true);
+  await expect(page.locator('.output-level-value')).toHaveText('---');
+  // Also exercise handlers directly: stale DOM/events must not send bad values.
+  await page.evaluate(() => { card._adjustOutputLevel(1); card._setOutputLevel(4); });
+  expect(await page.evaluate(() => calls)).toEqual([]);
+  await updateState(page, 'number.output', '0');
+  await page.locator('.stepper-btn').last().click();
+  expect(await page.evaluate(() => calls[0][2].value)).toBe(1);
 });
+
 test('C02 rejects a zero hours-per-month divisor', async ({ page }) => {
   await mount(page);
   const rejected = await page.evaluate(() => {
@@ -119,9 +132,9 @@ test('C02 rejects a zero hours-per-month divisor', async ({ page }) => {
     catch { return true; }
   });
   assertHealthy(page);
-  test.fail(true, 'C02: conversion validation belongs to the numeric PR');
   expect(rejected).toBe(true);
 });
+
 test('C04 output control honors an entity step of two', async ({ page }) => {
   await mount(page, { states: { ...fixture.states, 'number.output': { state: '4', attributes: { min: 0, max: 10, step: 2 } } } });
   await page.locator('.stepper-btn').last().click();
@@ -129,6 +142,25 @@ test('C04 output control honors an entity step of two', async ({ page }) => {
   assertHealthy(page);
   test.fail(true, 'C04: step handling belongs to the controls PR');
   expect(requestedValue).toBe(6);
+});
+
+test('C02 rejects nonfinite/nonpositive conversion settings with field-specific errors', async ({ page }) => {
+  await mount(page);
+  const errors = await page.evaluate(() => {
+    const attempts = [];
+    for (const field of ['hours_per_month', 'hours_reserve']) {
+      const values = field === 'hours_per_month' ? [0, -1, Infinity, NaN, null, '0'] : [-1, Infinity, NaN, null];
+      for (const value of values) {
+        try { card.setConfig({ sensors: { iq_sensor: { entity: 'sensor.iq', [field]: value } } }); attempts.push(null); }
+        catch (error) { attempts.push({ field, message: error.message }); }
+      }
+    }
+    return attempts;
+  });
+  for (const error of errors) {
+    expect(error).not.toBeNull();
+    expect(error.message).toContain(`sensors.iq_sensor.${error.field}`);
+  }
 });
 
 test('C04 rapid increments preserve intent', async ({ page }) => {
