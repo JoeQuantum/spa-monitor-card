@@ -53,7 +53,7 @@ test('separate sample-time entity supports unchanged samples without using trans
   assert.equal(readSensor(s, { ...states, 'sensor.sample_time': { state: 'unavailable' } }, now).reason, 'freshness_unknown');
 });
 
-test('source, availability and freshness settings validate known fields', () => {
+test('source, availability, freshness and history settings validate known fields', () => {
   for (const options of [
     { attribute: '' }, { attribute: null }, { availability: null },
     { availability: { entity: 'bad' } }, { availability: { entity: 'sensor.x', state: null } },
@@ -61,7 +61,8 @@ test('source, availability and freshness settings validate known fields', () => 
     { freshness: {} }, { freshness: { attribute: 'sampled_at', max_age: 0 } },
     { freshness: { entity: 'sensor.timestamp', max_age: '60' } },
     { freshness: { entity: 'sensor.timestamp', max_age: Infinity } },
+    { tap_action: { action: 'call-service' } }, { tap_action: { action: 'more-info', entity: 'bad' } },
   ]) assert.throws(() => sensor(options), /sensors.ph/);
-  const options = { freshness: { entity: 'sensor.time', max_age: 60, extension: 0 }, availability: { entity: 'sensor.status', state: 'ready' } };
+  const options = { freshness: { entity: 'sensor.time', max_age: 60, extension: 0 }, availability: { entity: 'sensor.status', state: 'ready' }, tap_action: { action: 'more-info' } };
   const before = structuredClone(options); sensor(options); assert.deepEqual(options, before);
 });

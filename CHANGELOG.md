@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 ### Added
 
 - Read explicitly configured numeric attributes, gate readings on an availability entity, and expire readings using an explicit sample timestamp and maximum age.
+- Open Home Assistant's history/details dialog from an opt-in gauge action, with pointer and keyboard support.
 
 ### Fixed
 

@@ -67,6 +67,12 @@ function sensorConfig(id, input) {
     if (freshness.max_age <= 0 || !Number.isFinite(freshness.max_age * 1000)) fail(`${path}.freshness.max_age`, 'must be a positive finite duration in seconds.');
     sensor.freshness = freshness;
   }
+  if (own(sensor, 'tap_action')) {
+    object(sensor.tap_action, `${path}.tap_action`);
+    if (!['none', 'more-info'].includes(sensor.tap_action.action)) fail(`${path}.tap_action.action`, 'must be none or more-info.');
+    if (own(sensor.tap_action, 'entity')) entity(sensor.tap_action.entity, `${path}.tap_action.entity`, '[a-z_][a-z0-9_]*');
+    sensor.tap_action = { ...sensor.tap_action };
+  }
 
   if (input.zones === null) {
     sensor.zones = null; // Explicit opt-in to a linear min/max scale.
