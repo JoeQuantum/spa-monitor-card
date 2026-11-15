@@ -2,6 +2,19 @@ import { test, expect } from '@playwright/test';
 import { fixture, mount, updateState, assertHealthy } from './helpers.js';
 test.afterEach(({ page }) => assertHealthy(page));
 
+test('C08 long labels wrap and masonry sizing follows rendered card height', async ({ page }) => {
+  const config=structuredClone(fixture.config);
+  config.sensors.ph.name='AnExtremelyLongUnbrokenPHReadingName';
+  await mount(page,{config});
+  await page.locator('#mount').evaluate(e=>e.style.width='320px');
+  const withControls=await page.evaluate(()=>({rows:card.getCardSize(),height:card.shadowRoot.querySelector('.card').getBoundingClientRect().height,scroll:card.scrollWidth,width:card.clientWidth}));
+  expect(withControls.rows).toBe(Math.ceil(withControls.height/50));
+  const box=await page.locator('.card').evaluate(e=>({scroll:e.scrollWidth,width:e.clientWidth}));
+  expect(box.scroll).toBeLessThanOrEqual(box.width);
+  await page.evaluate(async()=>{card.setConfig({sensors:{ph:{entity:'sensor.ph'}}});await card.updateComplete;});
+  expect(await page.evaluate(()=>card.getCardSize())).toBeLessThan(withControls.rows);
+});
+
 test('C10 explicit attributes never fall back and unavailable sources hide cached readings', async ({ page }) => {
   const config = { sensors: { ph: { entity: 'sensor.ph', attribute: 'reading' } } };
   await mount(page, { config });

@@ -72,6 +72,12 @@ export const styles = css`
     align-items: center;
     gap: 8px;
     flex: 1;
+    min-width: 0;
+  }
+  .gauge-label, .gauge-value {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    text-align: center;
   }
   .gauge-label {
     font-size: 12px;

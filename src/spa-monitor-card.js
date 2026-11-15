@@ -144,7 +144,11 @@ class SpaMonitorCard extends LitElement {
 
   /** @returns {number} Approximate card height in rows for HA layout. */
   getCardSize() {
-    return 4;
+    const rendered = this.shadowRoot?.querySelector('.card')?.getBoundingClientRect().height;
+    if (rendered > 0) return Math.ceil(rendered / 50);
+    // Initial estimate before layout; later calls include wrapping and CSS sizes.
+    return Math.ceil((222 + (this._config?.title ? 32 : 0)
+      + (this._config && this._hasControls() ? 90 : 0)) / 50);
   }
 
   // ==========================================
