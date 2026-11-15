@@ -45,9 +45,9 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **19 unit/release checks**, **36 browser checks** and no
-expected failures. Its current scope is C07: inherited and host-level CSS overrides across all themes while retaining defaults and per-instance isolation.
-See `docs/validation/packaged-theme.md` for independent packaging checks and
+This branch has **19 unit/release checks**, **38 browser checks** and no
+expected failures. Its current scope is C09 partial: placeholder starter configuration, editor labels and preservation of advanced options during clear/reselect. Full editor expansion and device-scoped suggestions remain open.
+See `docs/validation/packaged-editor.md` for independent packaging checks and
 remaining hardware validation. Earlier dated validation reports remain historical.
 
 Keep the existing design baseline while fixing behavior. New visual directions
@@ -81,7 +81,7 @@ it without rebuilding. Only the publish job has `contents: write`. HACS's
 
 The foundation work keeps package version 0.1.1 and adds an Unreleased changelog
 entry. It does not publish or retag an existing release. Real HA validation of the
-complete candidate is described in `docs/validation/packaged-theme.md`; physical
+complete candidate is described in `docs/validation/packaged-editor.md`; physical
 acceptance remains separate.
 
 ## Dependency decisions — November 13, 2026
