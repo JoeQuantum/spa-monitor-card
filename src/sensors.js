@@ -71,8 +71,8 @@ export const SENSOR_PRESETS = {
     decimals: 0,
     gradient: 'depletion',
     display_format: 'hours_to_months',
-    // FreshWater IQ stops sampling once the cartridge has 508 hours of
-    // reserve left, so usable life ends there rather than at 0.
+    // Configurable reserve based on two owner reports, not a universal
+    // firmware threshold. See README for provenance and estimate limits.
     hours_reserve: 508,
     hours_per_month: 730.5,
     zones: [
@@ -87,18 +87,18 @@ export const SENSOR_PRESETS = {
 /**
  * Calculate indicator position as a percentage from bottom (0-100)
  * using piecewise linear interpolation between zone breakpoints.
- * Clamped to 5-95% for visual padding.
+ * The numerical scale spans 0-100%; display padding is applied separately.
  *
  * @param {number} value - Current sensor value.
  * @param {Object} sensor - Resolved sensor config with zones, min, max.
- * @returns {number} Position as percentage from bottom (5-95).
+ * @returns {number} Position as percentage from bottom (0-100).
  */
-export function getIndicatorPosition(value, sensor) {
+export function getScalePosition(value, sensor) {
   const zones = sensor.zones;
   if (!zones || zones.length < 2) {
     const clamped = Math.max(sensor.min, Math.min(sensor.max, value));
     const pct = ((clamped - sensor.min) / (sensor.max - sensor.min)) * 100;
-    return Math.max(5, Math.min(95, pct));
+    return pct;
   }
 
   const maxVal = zones[0].value;
@@ -113,9 +113,28 @@ export function getIndicatorPosition(value, sensor) {
         ? 0
         : (clamped - lower.value) / (upper.value - lower.value);
       const posFromTop = lower.position + t * (upper.position - lower.position);
-      return Math.max(5, Math.min(95, 100 - posFromTop));
+      return 100 - posFromTop;
     }
   }
 
   return 50;
+}
+
+/** Display padding does not change the numerical scale or band boundaries. */
+export function getIndicatorPosition(value, sensor) {
+  return Math.max(5, Math.min(95, getScalePosition(value, sensor)));
+}
+
+/** Describe configured bands without asserting water safety or IQ expiry. */
+export function getGaugeStatus(value, sensor) {
+  if (value < sensor.min) return 'Below displayed range';
+  if (value > sensor.max) return 'Above displayed range';
+  const position = getScalePosition(value, sensor);
+  if (sensor.gradient === 'depletion') {
+    if (position >= 20) return 'Within configured green band';
+    return position >= 10 ? 'Low (configured yellow band)' : 'Low (configured red band)';
+  }
+  if (position >= 20 && position <= 80) return 'Within configured target band';
+  if (position < 20) return position >= 10 ? 'Low (configured yellow band)' : 'Low (configured red band)';
+  return position <= 90 ? 'High (configured yellow band)' : 'High (configured red band)';
 }

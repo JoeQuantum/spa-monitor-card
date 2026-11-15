@@ -18,6 +18,7 @@ is an alternative local check. CI uses Playwright's pinned Chromium.
 | File | Responsibility |
 |---|---|
 | `src/spa-monitor-card.js` | Lovelace card, readings and service interactions |
+| `src/config.js` | Field-specific validation and scale resolution without entity discovery |
 | `src/spa-monitor-card-editor.js` | Visual configuration editor |
 | `src/sensors.js` | Presets and piecewise indicator positioning |
 | `src/numbers.js` | Strict numeric parsing and bounded number-entity steps |
@@ -44,12 +45,10 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **11 unit/release checks**, **23 normal browser passes**
-and **0 narrowly scoped expected failures**. Expected failures reproduce
-known work in later stacked PRs; they are not fixes. Preconditions run before
-the annotation, and an unexpected pass fails the suite. The complete stack has
-23 browser passes with no expected failures. See `docs/validation/controls.md`
-for scope, exact commands and hardware limitations.
+This branch has **19 unit/release checks**, **27 browser checks** and no
+expected failures. Its current scope is C02/C03 and related C06/C14: field-specific configuration validation, explicit scale contracts, gauge text equivalents and range/IQ estimate provenance.
+See `docs/validation/packaged-config.md` for independent packaging checks and
+remaining hardware validation. Earlier dated validation reports remain historical.
 
 Keep the existing design baseline while fixing behavior. New visual directions
 require representative options, a selection and approval before rollout.
@@ -82,7 +81,7 @@ it without rebuilding. Only the publish job has `contents: write`. HACS's
 
 The foundation work keeps package version 0.1.1 and adds an Unreleased changelog
 entry. It does not publish or retag an existing release. Real HA validation of the
-complete candidate is documented in `docs/validation/controls.md`; physical
+complete candidate is described in `docs/validation/packaged-config.md`; physical
 acceptance remains separate.
 
 ## Dependency decisions — November 13, 2026
