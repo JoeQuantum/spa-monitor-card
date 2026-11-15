@@ -9,6 +9,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 - Read explicitly configured numeric attributes, gate readings on an availability entity, and expire readings using an explicit sample timestamp and maximum age.
 - Open Home Assistant's history/details dialog from an opt-in gauge action, with pointer and keyboard support.
+- Scope editor suggestions by registry device identity, retain configured helpers and expose existing custom sensor entries.
+- Add the approved expandable sensor-group editor for ranges, units, precision, lifetime conversion, attributes, availability, sample age and history, plus a device scope selector. Preserve invalid drafts without publishing them and restore removed advanced options within the editor session.
 
 ### Fixed
 

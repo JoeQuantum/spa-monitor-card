@@ -1,0 +1,598 @@
+{
+  "date": "2026-11-14",
+  "base_commit": "d263d0dc1b529280e211a247b99529012527f570",
+  "environment": {
+    "ha_core": "2026.11.1",
+    "frontend": "20261028.5",
+    "python": "3.14.5",
+    "aioesphomeapi": "46.25.0",
+    "node": "22.23.5",
+    "playwright": "1.65.0"
+  },
+  "candidate_sha256": "09fe60fb7bb129e959da27606b31c516938791987cda7ad42383ba0b6ad1b70c",
+  "boundary": "Real HA/Lovelace with a synthetic native ESPHome API peer; no ESP-IQ2020 firmware or spa bus. Expanded editor form remains pending design approval.",
+  "unit": [
+    {
+      "name": "artifact verification rejects stale source, altered bundles and inconsistent release metadata",
+      "status": "PASS"
+    },
+    {
+      "name": "nested shapes fail with actionable paths, not runtime property errors",
+      "status": "PASS"
+    },
+    {
+      "name": "known entities require matching domains without requiring HA to load them",
+      "status": "PASS"
+    },
+    {
+      "name": "finite bounds, precision, labels and supported enums are validated",
+      "status": "PASS"
+    },
+    {
+      "name": "valid zero settings and unknown extensions survive without input or preset mutation",
+      "status": "PASS"
+    },
+    {
+      "name": "custom sensors need a name and complete scale, with explicit linear support",
+      "status": "PASS"
+    },
+    {
+      "name": "zones reject duplicate, unordered, mismatched and nonfinite breakpoints",
+      "status": "PASS"
+    },
+    {
+      "name": "preset endpoint overrides preserve interior thresholds and interpolate their new ends",
+      "status": "PASS"
+    },
+    {
+      "name": "textual band boundaries agree with the scale and identify out-of-range values",
+      "status": "PASS"
+    },
+    {
+      "name": "entity suggestions follow registry device identity and retain existing helpers",
+      "status": "PASS"
+    },
+    {
+      "name": "mixed-device configurations do not silently choose a device",
+      "status": "PASS"
+    },
+    {
+      "name": "attribute sources allow other domains while explicit scope preserves existing selections",
+      "status": "PASS"
+    },
+    {
+      "name": "states require complete finite decimal numbers, while zero remains valid",
+      "status": "PASS"
+    },
+    {
+      "name": "number metadata rejects malformed bounds/steps and out-of-range reports",
+      "status": "PASS"
+    },
+    {
+      "name": "adjacent steps respect nonzero minima, off-grid reports and unreachable maxima",
+      "status": "PASS"
+    },
+    {
+      "name": "fractional steps send stable decimal values and stop at bounds",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit attribute sources preserve zero and never fall back to state",
+      "status": "PASS"
+    },
+    {
+      "name": "availability conditions distinguish known disabled from unknown state",
+      "status": "PASS"
+    },
+    {
+      "name": "sample timestamps require timezone and valid calendar/time fields",
+      "status": "PASS"
+    },
+    {
+      "name": "freshness requires explicit sample time and expires at the configured deadline",
+      "status": "PASS"
+    },
+    {
+      "name": "separate sample-time entity supports unchanged samples without using transport age",
+      "status": "PASS"
+    },
+    {
+      "name": "source, availability, freshness and history settings validate known fields",
+      "status": "PASS"
+    },
+    {
+      "name": "release notes select an exact version, not adjacent entries",
+      "status": "PASS"
+    },
+    {
+      "name": "missing or empty notes block publication",
+      "status": "PASS"
+    },
+    {
+      "name": "the four water-care presets have finite ordered scales",
+      "status": "PASS"
+    },
+    {
+      "name": "piecewise interpolation agrees at each segment midpoint",
+      "status": "PASS"
+    },
+    {
+      "name": "extreme finite readings clamp to the ends instead of escaping the card",
+      "status": "PASS"
+    },
+    {
+      "name": "custom scales without zones use their own bounds",
+      "status": "PASS"
+    }
+  ],
+  "built_browser": [
+    {
+      "name": "released bundle registers the spa card and renders the four configured readings",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid basic configuration is rejected before rendering",
+      "status": "PASS"
+    },
+    {
+      "name": "unknown, unavailable and missing sensors hide the marker and recover",
+      "status": "PASS"
+    },
+    {
+      "name": "IQ life formatting applies the configured reserve and conversion",
+      "status": "PASS"
+    },
+    {
+      "name": "controls call the configured services and disable when unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "optional controls stay absent and editor changes preserve YAML overrides",
+      "status": "PASS"
+    },
+    {
+      "name": "themes, multiple cards and supported widths retain the current presentation",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"error\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"NaN\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"Infinity\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"7.5oops\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 invalid number never sends a service command",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 rejects a zero hours-per-month divisor",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 output control honors an entity step of two",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 rejects nonfinite/nonpositive conversion settings with field-specific errors",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 rapid clicks retain desired output while the display follows reports",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 service calls serialize and coalesce without treating success as a report",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 service rejection clears queued intent and next click uses reported state",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 reversing queued clicks back to the in-flight value can still be confirmed",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 lost reports time out without retries or fabricated state",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 unavailable or replaced entities discard intent and late service completions",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 fractional steps and boundary buttons prevent redundant requests",
+      "status": "PASS"
+    },
+    {
+      "name": "C08 long labels wrap and masonry sizing follows rendered card height",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 explicit attributes never fall back and unavailable sources hide cached readings",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 explicit availability does not mistake unknown for enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 freshness expires without a HA update and a repeated sample value recovers",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 freshness reconfiguration clears timers and unknown timestamps cannot imply freshness",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 expiry between rendering and scheduling still refreshes the displayed sample",
+      "status": "PASS"
+    },
+    {
+      "name": "C11 optional more-info works with pointer and keyboard and does not call services",
+      "status": "PASS"
+    },
+    {
+      "name": "C09 editor pickers use device IDs and retain configured custom sensor options",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 rejects malformed nested configuration with field paths before rendering",
+      "status": "PASS"
+    },
+    {
+      "name": "C03 range overrides change endpoints without moving preset thresholds",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 Boost sends explicit state and suppresses repeated unconfirmed commands",
+      "status": "PASS"
+    },
+    {
+      "name": "C06 Boost is a keyboard button and gauges have text equivalents",
+      "status": "PASS"
+    },
+    {
+      "name": "C07 inherited theme overrides work in light dark glass and automatic modes",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 service failure recovers to the reported state without retry",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 lost reports time out without retries or a fabricated Boost state",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 invalid reports, replaced entities and removed cards discard pending Boost",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 a report before service completion confirms Boost and isolates later failures",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 missing startup entities render unavailable and invalid config leaves the last valid config intact",
+      "status": "PASS"
+    },
+    {
+      "name": "C03 below and above scale readings have distinct textual equivalents",
+      "status": "PASS"
+    },
+    {
+      "name": "C06 output buttons work with keyboard and announce the reported value",
+      "status": "PASS"
+    },
+    {
+      "name": "C07 automatic theme changes retain defaults and instance overrides stay local",
+      "status": "PASS"
+    },
+    {
+      "name": "C09 clearing and reselecting an editor entity restores advanced options in the same session",
+      "status": "PASS"
+    },
+    {
+      "name": "C09 starter configuration is valid without selecting an arbitrary real spa",
+      "status": "PASS"
+    }
+  ],
+  "ha_browser": [
+    {
+      "name": "Candidate renders four readings inside actual Lovelace",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard controls reach real HA services and native API",
+      "status": "PASS"
+    },
+    {
+      "name": "Native missing values hide marker; numeric zero recovers",
+      "status": "PASS"
+    },
+    {
+      "name": "Device disconnect disables controls and reconnect restores them",
+      "status": "PASS"
+    },
+    {
+      "name": "Real visual editor opens domain-filtered entity pickers and saves overrides",
+      "status": "PASS"
+    },
+    {
+      "name": "Light dark glass and automatic HA themes render",
+      "status": "PASS"
+    },
+    {
+      "name": "Desktop tablet and mobile widths fit without card overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "Multiple dashboard cards use distinct SVG ids",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"error\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"NaN\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"Infinity\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 rejects invalid reading \"7.5oops\"",
+      "status": "PASS"
+    },
+    {
+      "name": "C01 invalid number disables controls and cannot send a command",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 zero divisor shows a field-specific HA configuration error",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 output honors entity step two",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 rapid increments preserve intent and wait for a matching report",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 boundary actions send no redundant native commands",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 timeout preserves report and clears pending intent without retry",
+      "status": "PASS"
+    },
+    {
+      "name": "C04 disconnect cancels pending intent and never replays it",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 nested YAML errors identify their fields inside the real HA editor",
+      "status": "PASS"
+    },
+    {
+      "name": "C02 custom scales preserve valid zero and permit missing startup entities",
+      "status": "PASS"
+    },
+    {
+      "name": "C03 range override uses the new endpoint and keeps the interior target",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 Boost uses explicit requests, blocks duplicates and waits for the native report",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 real Boost timeout clears intent without retries and follows a later report",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 unavailable Boost discards pending intent and never replays on reconnect",
+      "status": "PASS"
+    },
+    {
+      "name": "C05 malformed Boost state cannot produce a native command",
+      "status": "PASS"
+    },
+    {
+      "name": "C06 keyboard Boost activation and gauge text work inside Lovelace",
+      "status": "PASS"
+    },
+    {
+      "name": "C07 CSS overrides survive every explicit theme in Lovelace",
+      "status": "PASS"
+    },
+    {
+      "name": "C09 real editor filters suggestions using the HA device registry",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 attribute readings use only the selected attribute inside HA",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 HA availability conditions preserve unknown and disabled states",
+      "status": "PASS"
+    },
+    {
+      "name": "C10 actual elapsed sample age expires without another HA report and recovers",
+      "status": "PASS"
+    },
+    {
+      "name": "C11 pointer and keyboard open the real HA more-info dialog",
+      "status": "PASS"
+    },
+    {
+      "name": "C08 long reading labels wrap and reported masonry size follows actual height",
+      "status": "PASS"
+    },
+    {
+      "name": "No uncaught browser exceptions across scenarios",
+      "status": "PASS"
+    }
+  ],
+  "ha_api": [
+    {
+      "name": "Pinned real Home Assistant release",
+      "status": "PASS"
+    },
+    {
+      "name": "ESPHome duration metadata: iq_hoursleft",
+      "status": "PASS"
+    },
+    {
+      "name": "ESPHome duration metadata: salt_cartridge_age_days",
+      "status": "PASS"
+    },
+    {
+      "name": "ESPHome duration metadata: salt_days_since_manual_test",
+      "status": "PASS"
+    },
+    {
+      "name": "ESPHome duration metadata: salt_generation_hours",
+      "status": "PASS"
+    },
+    {
+      "name": "Number boundary 0",
+      "status": "PASS"
+    },
+    {
+      "name": "Number boundary 10",
+      "status": "PASS"
+    },
+    {
+      "name": "HA rejects number -1",
+      "status": "PASS"
+    },
+    {
+      "name": "HA rejects number 11",
+      "status": "PASS"
+    },
+    {
+      "name": "Number waits for reported state",
+      "status": "PASS"
+    },
+    {
+      "name": "Switch services round-trip",
+      "status": "PASS"
+    },
+    {
+      "name": "Fan services round-trip",
+      "status": "PASS"
+    },
+    {
+      "name": "Climate native-unit conversion",
+      "status": "PASS"
+    },
+    {
+      "name": "Select validation and round-trip",
+      "status": "PASS"
+    },
+    {
+      "name": "Manual-test button round-trip",
+      "status": "PASS"
+    },
+    {
+      "name": "Unknown and zero native readings",
+      "status": "PASS"
+    },
+    {
+      "name": "Native API disconnect/reconnect",
+      "status": "PASS"
+    },
+    {
+      "name": "Metadata migration retains entity/history",
+      "status": "PASS"
+    },
+    {
+      "name": "Generation reset recorder input",
+      "status": "PASS"
+    }
+  ],
+  "restart": [
+    {
+      "name": "Resource URL, id and type persist",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard config persists",
+      "status": "PASS"
+    },
+    {
+      "name": "All fixture entity and registry identities persist",
+      "status": "PASS"
+    },
+    {
+      "name": "Fixture reports recover after both processes restart",
+      "status": "PASS"
+    },
+    {
+      "name": "Statistics metadata and completed repair persist",
+      "status": "PASS"
+    },
+    {
+      "name": "Previously compiled recorder statistics persist",
+      "status": "PASS"
+    },
+    {
+      "name": "Marketplace authorization and custom repository persist",
+      "status": "PASS"
+    }
+  ],
+  "counts": {
+    "unit": 28,
+    "built_browser": 46,
+    "ha_browser": 36,
+    "ha_api": 19,
+    "restart": 7
+  },
+  "total_passed": 136,
+  "fresh_browser": {
+    "url": "http://127.0.0.1:18124/spa-lab/overview",
+    "gauges": [
+      "3.0 ppm",
+      "7.5",
+      "1750 ppm",
+      "13 mo"
+    ],
+    "errors": []
+  },
+  "artifact_identity": {
+    "resource": "/local/spa-lab/spa-monitor-card.js?v=09fe60fb7bb1",
+    "candidate_sha256": "09fe60fb7bb129e959da27606b31c516938791987cda7ad42383ba0b6ad1b70c",
+    "installed_sha256": "09fe60fb7bb129e959da27606b31c516938791987cda7ad42383ba0b6ad1b70c",
+    "http_sha256": "09fe60fb7bb129e959da27606b31c516938791987cda7ad42383ba0b6ad1b70c",
+    "http_status": 200,
+    "all_identical": true
+  },
+  "prior_harness_failures": [
+    "More-info outer host had zero size while nested dialog was visible; assert visible Close control instead.",
+    "HA masonry columns resize asynchronously; await mobile column before asserting overflow and rows."
+  ]
+}

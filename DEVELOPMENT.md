@@ -18,9 +18,10 @@ is an alternative local check. CI uses Playwright's pinned Chromium.
 | File | Responsibility |
 |---|---|
 | `src/spa-monitor-card.js` | Lovelace card, readings and service interactions |
-| `src/readings.js` | Explicit attribute, availability and sample-age contracts |
 | `src/config.js` | Field-specific validation and scale resolution without entity discovery |
 | `src/spa-monitor-card-editor.js` | Visual configuration editor |
+| `src/editor-support.js` | Registry-based entity suggestions and immutable raw-option patches |
+| `src/readings.js` | Explicit attribute, availability and sample-age contracts |
 | `src/sensors.js` | Presets and piecewise indicator positioning |
 | `src/numbers.js` | Strict numeric parsing and bounded number-entity steps |
 | `src/styles.js` | Existing visual presentation |
@@ -46,10 +47,15 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **25 unit/release checks** and **45 built-browser checks**,
-with no expected failures. Current PR scope: C08 partial: wrapping and rendered-height masonry sizing; the existing card layout remains.
-See `docs/validation/packaged-layout-sizing.md` for stage checks and remaining hardware validation.
-Earlier dated validation reports retain their historical scope.
+This branch adds explicit data-source/freshness contracts, registry-scoped editor
+suggestions, existing custom-sensor editing, optional native HA history access,
+long-label wrapping and masonry sizing. The approved sensor-group editor now
+covers high-value options, preserves invalid drafts until corrected/discarded,
+and retains advanced YAML options. Full localization, trend displays and new
+card layouts remain separate. See `docs/validation/packaged-sensor-groups.md` for current
+checks and limitations; `docs/validation/editor-data-sources.md` records the
+preceding data-source candidate.
+Earlier dated validation and packaging reports remain historical.
 
 Keep the existing design baseline while fixing behavior. New visual directions
 require representative options, a selection and approval before rollout.
@@ -82,7 +88,7 @@ it without rebuilding. Only the publish job has `contents: write`. HACS's
 
 The foundation work keeps package version 0.1.1 and adds an Unreleased changelog
 entry. It does not publish or retag an existing release. Real HA validation of the
-complete candidate is described in `docs/validation/packaged-editor.md`; physical
+current candidate is described in `docs/validation/packaged-sensor-groups.md`; physical
 acceptance remains separate.
 
 ## Dependency decisions — November 13, 2026
