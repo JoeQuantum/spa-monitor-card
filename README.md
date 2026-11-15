@@ -277,7 +277,7 @@ The `glass` theme is designed for visionOS-style dashboards where cards float ov
 
 ## CSS Custom Properties
 
-All colors and dimensions are exposed as CSS custom properties for [card-mod](https://github.com/thomasloven/lovelace-card-mod) overrides. All properties use the `--spa-` prefix.
+Theme defaults use private fallback properties so inherited or host-level `--spa-*` overrides work in every theme. Public colors and dimensions are exposed as CSS custom properties for [card-mod](https://github.com/thomasloven/lovelace-card-mod) overrides. All properties use the `--spa-` prefix.
 
 ### Card container
 
