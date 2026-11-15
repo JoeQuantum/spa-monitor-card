@@ -18,6 +18,7 @@ is an alternative local check. CI uses Playwright's pinned Chromium.
 | File | Responsibility |
 |---|---|
 | `src/spa-monitor-card.js` | Lovelace card, readings and service interactions |
+| `src/readings.js` | Explicit attribute, availability and sample-age contracts |
 | `src/config.js` | Field-specific validation and scale resolution without entity discovery |
 | `src/spa-monitor-card-editor.js` | Visual configuration editor |
 | `src/sensors.js` | Presets and piecewise indicator positioning |
@@ -45,10 +46,10 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **19 unit/release checks**, **38 browser checks** and no
-expected failures. Its current scope is C09 partial: placeholder starter configuration, editor labels and preservation of advanced options during clear/reselect. Full editor expansion and device-scoped suggestions remain open.
-See `docs/validation/packaged-editor.md` for independent packaging checks and
-remaining hardware validation. Earlier dated validation reports remain historical.
+This branch has **25 unit/release checks** and **43 built-browser checks**,
+with no expected failures. Current PR scope: C10: numeric attributes, explicit availability and timestamp-based expiry.
+See `docs/validation/packaged-reading-sources.md` for stage checks and remaining hardware validation.
+Earlier dated validation reports retain their historical scope.
 
 Keep the existing design baseline while fixing behavior. New visual directions
 require representative options, a selection and approval before rollout.

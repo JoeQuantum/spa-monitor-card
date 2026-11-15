@@ -117,7 +117,7 @@ sensors:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `entity` | string | **Required.** A `sensor.*` entity ID. It need not be loaded when configuration is saved. |
+| `entity` | string | **Required.** A `sensor.*` entity ID, or another HA domain when reading an explicit numeric `attribute`. It need not be loaded when configuration is saved. |
 | `name` | string | Override the display label above the bar. |
 | `unit` | string | Override the unit shown after the value. |
 | `min` | number | Finite lower bound, less than `max`; see scale overrides below. |
@@ -126,6 +126,9 @@ sensors:
 | `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (green-yellow-red). |
 | `display_format` | string or null | `numeric` or `null` shows the number; `hours_to_months` shows an estimated month count. |
 | `zones` | array or null | Ordered value/position breakpoints; `null` explicitly selects a linear min/max scale. |
+| `attribute` | string | Optional exact attribute name on the source entity. Missing/invalid attributes never fall back to its state. |
+| `availability` | object | Optional `{entity: binary_sensor.monitoring, state: "on"}` condition; `state` defaults to `on`. Unknown/missing availability does not pass. |
+| `freshness` | object | Explicit sample timestamp source and positive `max_age` in seconds; see below. No freshness inference is enabled by default. |
 | `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset uses an owner-reported `508`-hour reserve, configurable for your installation. |
 | `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (365.25 × 24 / 12). |
 
@@ -150,7 +153,8 @@ This measuring sensor is distinct from the chlorine-generating salt cartridge.
 #### Validation and scale overrides
 
 `sensors` must be a nonempty object; each sensor and optional control must be an
-object. Entities use `sensor.*`, `number.*` for output, and `switch.*` for Boost.
+object. Entities use `sensor.*` for state readings (other domains require an
+explicit numeric attribute), `number.*` for output, and `switch.*` for Boost.
 Known options are checked before the card is rendered, including options supplied
 while their display format is inactive. Errors identify the YAML field. Unknown
 extension fields on the card, sensors and supported controls are preserved.
@@ -192,6 +196,43 @@ The bar colors stay at their documented percentage bands. The scale maps reading
 to those positions piecewise; there is no automatic chemical-range inference for
 custom sensors. `setpoint` is retained as finite metadata and does not draw a marker
 or alter the scale.
+
+### Reading sources, availability and sample age
+
+```yaml
+type: custom:spa-monitor-card
+sensors:
+  ph:
+    entity: sensor.my_spa_measurements
+    attribute: ph
+    availability:
+      entity: binary_sensor.my_spa_monitoring
+      state: "on"
+    freshness:
+      attribute: sampled_at
+      max_age: 5400
+```
+
+This is an illustrative contract, not a discovered ESP-IQ2020 configuration or a
+recommended sampling deadline. Only enable freshness when the configured source
+really identifies the chemical sample time. `freshness.attribute` refers to an
+attribute of the reading's entity unless `freshness.entity` names another entity.
+Without an attribute, an explicit timestamp entity's state supplies the time.
+For example, `freshness: {entity: sensor.my_spa_sample_time, max_age: 5400}`.
+
+Timestamps must be ISO 8601 strings with seconds and a timezone, such as
+`2026-11-14T12:00:00Z` or `2026-11-14T04:00:00-08:00`. Missing, malformed or future
+sample times yield an unknown reading. At `max_age` the value changes to `Stale`
+and the marker is hidden, even if HA sends no further updates. A newer timestamp
+can restore an unchanged numeric value. Numeric Unix timestamps are not accepted
+implicitly; convert them explicitly in your source configuration.
+
+HA's `last_changed`, `last_updated` and ordinary ESPHome polling are never used
+as a substitute for a chemical sample time. With no freshness option, the card
+continues displaying valid reported values without asserting that they are fresh.
+Availability/freshness conditions suppress only the configured gauge; they do
+not acknowledge a test, change salt output, or decode IQ faults. An unavailable
+source remains unavailable even if its cached attributes contain numbers.
 
 ### Controls
 

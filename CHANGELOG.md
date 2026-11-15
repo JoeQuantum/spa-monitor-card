@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Added
+
+- Read explicitly configured numeric attributes, gate readings on an availability entity, and expire readings using an explicit sample timestamp and maximum age.
+
 ### Fixed
 
 - Validate nested configuration, entity domains, finite scales, decimals and supported display options before rendering, with field-specific errors.

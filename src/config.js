@@ -14,7 +14,7 @@ const text = (value, path, empty = true) => {
 };
 const entity = (value, path, domain) => {
   if (typeof value !== 'string' || value.trim() !== value || !new RegExp(`^${domain}\\.[a-z0-9_]+$`).test(value)) {
-    fail(path, `must be a ${domain} entity ID (for example ${domain}.spa).`);
+    fail(path, domain.startsWith('[') ? 'must be a Home Assistant entity ID (for example sensor.spa).' : `must be a ${domain} entity ID (for example ${domain}.spa).`);
   }
 };
 
@@ -41,13 +41,32 @@ function sensorConfig(id, input) {
   object(input, path);
   const preset = own(SENSOR_PRESETS, id) ? SENSOR_PRESETS[id] : {};
   const sensor = { unit: '', decimals: 1, gradient: 'standard', display_format: null, ...preset, ...input };
-  entity(sensor.entity, `${path}.entity`, 'sensor');
+  if (own(sensor, 'attribute')) text(sensor.attribute, `${path}.attribute`, false);
+  entity(sensor.entity, `${path}.entity`, own(sensor, 'attribute') ? '[a-z_][a-z0-9_]*' : 'sensor');
   text(sensor.name, `${path}.name`, false);
   text(sensor.unit, `${path}.unit`);
   if (!Number.isInteger(sensor.decimals) || sensor.decimals < 0 || sensor.decimals > 100) fail(`${path}.decimals`, 'must be an integer from 0 to 100.');
   if (!['standard', 'depletion'].includes(sensor.gradient)) fail(`${path}.gradient`, 'must be standard or depletion.');
   if (![null, 'numeric', 'hours_to_months'].includes(sensor.display_format)) fail(`${path}.display_format`, 'must be null, numeric or hours_to_months.');
   if (own(sensor, 'setpoint')) finite(sensor.setpoint, `${path}.setpoint`);
+  if (own(sensor, 'availability')) {
+    object(sensor.availability, `${path}.availability`);
+    entity(sensor.availability.entity, `${path}.availability.entity`, '[a-z_][a-z0-9_]*');
+    const state = own(sensor.availability, 'state') ? sensor.availability.state : 'on';
+    text(state, `${path}.availability.state`, false);
+    if (['unknown', 'unavailable'].includes(state)) fail(`${path}.availability.state`, 'must identify a known available state.');
+    sensor.availability = { ...sensor.availability, state };
+  }
+  if (own(sensor, 'freshness')) {
+    object(sensor.freshness, `${path}.freshness`);
+    const freshness = { ...sensor.freshness };
+    if (own(freshness, 'entity')) entity(freshness.entity, `${path}.freshness.entity`, '[a-z_][a-z0-9_]*');
+    if (own(freshness, 'attribute')) text(freshness.attribute, `${path}.freshness.attribute`, false);
+    if (!own(freshness, 'entity') && !own(freshness, 'attribute')) fail(`${path}.freshness`, 'requires an explicit sample-time entity or attribute.');
+    finite(freshness.max_age, `${path}.freshness.max_age`);
+    if (freshness.max_age <= 0 || !Number.isFinite(freshness.max_age * 1000)) fail(`${path}.freshness.max_age`, 'must be a positive finite duration in seconds.');
+    sensor.freshness = freshness;
+  }
 
   if (input.zones === null) {
     sensor.zones = null; // Explicit opt-in to a linear min/max scale.
