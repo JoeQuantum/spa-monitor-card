@@ -46,9 +46,9 @@ configuration, readings, unavailable states, lifecycle formatting, controls,
 editor preservation, theme rendering, multiple instances and narrow widths.
 It is not an end-to-end test inside a real Home Assistant dashboard.
 
-This branch has **25 unit/release checks** and **43 built-browser checks**,
-with no expected failures. Current PR scope: C10: numeric attributes, explicit availability and timestamp-based expiry.
-See `docs/validation/packaged-reading-sources.md` for stage checks and remaining hardware validation.
+This branch has **25 unit/release checks** and **44 built-browser checks**,
+with no expected failures. Current PR scope: C11 partial: optional native more-info access by click, Enter and Space; no trend display.
+See `docs/validation/packaged-native-history.md` for stage checks and remaining hardware validation.
 Earlier dated validation reports retain their historical scope.
 
 Keep the existing design baseline while fixing behavior. New visual directions

@@ -129,6 +129,7 @@ sensors:
 | `attribute` | string | Optional exact attribute name on the source entity. Missing/invalid attributes never fall back to its state. |
 | `availability` | object | Optional `{entity: binary_sensor.monitoring, state: "on"}` condition; `state` defaults to `on`. Unknown/missing availability does not pass. |
 | `freshness` | object | Explicit sample timestamp source and positive `max_age` in seconds; see below. No freshness inference is enabled by default. |
+| `tap_action` | object | Optional `{action: more-info}` to open HA history/details; `entity` can explicitly override the source. Default action is `none`. |
 | `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset uses an owner-reported `508`-hour reserve, configurable for your installation. |
 | `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (365.25 × 24 / 12). |
 
@@ -211,6 +212,8 @@ sensors:
     freshness:
       attribute: sampled_at
       max_age: 5400
+    tap_action:
+      action: more-info
 ```
 
 This is an illustrative contract, not a discovered ESP-IQ2020 configuration or a
@@ -233,6 +236,11 @@ continues displaying valid reported values without asserting that they are fresh
 Availability/freshness conditions suppress only the configured gauge; they do
 not acknowledge a test, change salt output, or decode IQ faults. An unavailable
 source remains unavailable even if its cached attributes contain numbers.
+
+The optional `more-info` action opens Home Assistant's standard entity dialog
+using click, Enter or Space. It sends no spa service command and is also useful
+for inspecting history while a current reading is unavailable. Derived trend
+displays are not included.
 
 ### Controls
 

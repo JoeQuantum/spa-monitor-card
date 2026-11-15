@@ -76,3 +76,16 @@ test('C10 expiry between rendering and scheduling still refreshes the displayed 
   await expect(page.locator('.gauge-value')).toHaveText('Stale');
   await expect(page.locator('.gauge-indicator')).toHaveCount(0);
 });
+
+test('C11 optional more-info works with pointer and keyboard and does not call services', async ({ page }) => {
+  await mount(page, { config: { sensors: { ph: { entity: 'sensor.ph', tap_action: { action: 'more-info', entity: 'sensor.history' } } } } });
+  await page.evaluate(() => { window.moreInfo=[];document.addEventListener('hass-more-info', e => moreInfo.push(e.detail.entityId)); });
+  const gauge = page.getByRole('button', { name: /pH:.*Open history/ });
+  await gauge.click(); await gauge.focus(); await page.keyboard.press('Enter'); await page.keyboard.press('Space');
+  await gauge.dispatchEvent('keydown', { key: 'Enter', repeat: true });
+  expect(await page.evaluate(() => moreInfo)).toEqual(['sensor.history', 'sensor.history', 'sensor.history']);
+  expect(await page.evaluate(() => calls)).toEqual([]);
+  await page.evaluate(() => card.setConfig({ sensors: { ph: { entity: 'sensor.ph' } } }));
+  await page.locator('.gauge').click();
+  expect(await page.evaluate(() => moreInfo.length)).toBe(3);
+});

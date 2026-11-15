@@ -212,11 +212,14 @@ class SpaMonitorCard extends LitElement {
     const status = isUnavailable ? reading.status : getGaugeStatus(value, sensor);
     const raw = !isUnavailable && sensor.display_format === 'hours_to_months'
       ? `; ${value} raw hours; displayed months are an estimate` : '';
-    const description = `${sensor.name}: ${displayValue}; ${status}${raw}`;
+    const opensHistory = sensor.tap_action?.action === 'more-info';
+    const description = `${sensor.name}: ${displayValue}; ${status}${raw}${opensHistory ? '; Open history and details' : ''}`;
 
     return html`
-      <div class="gauge ${isUnavailable ? 'unavailable' : ''}" role="img"
-        aria-label=${description} title=${description} tabindex="0">
+      <div class="gauge ${isUnavailable ? 'unavailable' : ''}" role=${opensHistory ? 'button' : 'img'}
+        aria-label=${description} title=${description} tabindex="0"
+        @click=${() => this._openMoreInfo(sensor)}
+        @keydown=${event => { if (opensHistory && ['Enter', ' '].includes(event.key)) { event.preventDefault(); if (!event.repeat) this._openMoreInfo(sensor); } }}>
         <span class="gauge-label">${sensor.name}</span>
         <div class="gauge-bar-container">
           <div class="gauge-bar ${gradientClass}"></div>
@@ -353,6 +356,13 @@ class SpaMonitorCard extends LitElement {
 
   _hasControls() {
     return this._config.controls.output_level || this._config.controls.boost;
+  }
+
+  _openMoreInfo(sensor) {
+    if (sensor.tap_action?.action !== 'more-info') return;
+    this.dispatchEvent(new CustomEvent('hass-more-info', {
+      detail: { entityId: sensor.tap_action.entity || sensor.entity }, bubbles: true, composed: true,
+    }));
   }
 
   // ==========================================
