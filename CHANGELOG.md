@@ -7,6 +7,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ### Fixed
 
+- Validate nested configuration, entity domains, finite scales, decimals and supported display options before rendering, with field-specific errors.
+- Apply preset min/max overrides to the scale endpoints while retaining interior thresholds; validate explicit zones and expose range/band text equivalents.
+- Correct scale documentation and label IQ months/reserve as a configurable estimate based on owner reports.
 - Reject malformed and nonfinite readings without drawing a gauge marker; preserve valid zero values and recovery.
 - Disable output controls for invalid states or constraints and reject invalid service values.
 - Validate positive finite `hours_per_month` and finite nonnegative `hours_reserve` with field-specific errors.

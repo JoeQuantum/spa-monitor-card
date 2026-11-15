@@ -225,6 +225,11 @@ export const styles = css`
     color: var(--spa-text-secondary);
   }
 
+  .gauge:focus-visible {
+    outline: 2px solid var(--primary-color, #03a9f4);
+    outline-offset: 3px;
+  }
+
   /* ===== Unavailable state ===== */
   .gauge.unavailable {
     opacity: 0.4;

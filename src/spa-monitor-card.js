@@ -12,14 +12,14 @@
 import { LitElement, html } from 'lit-element';
 import { styles } from './styles.js';
 import {
-  SENSOR_PRESETS,
   getIndicatorPosition,
+  getGaugeStatus,
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
+import { resolveConfig } from './config.js';
 import { finiteNumber, numberState, nextNumberStep } from './numbers.js';
 
 const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
-const VALID_THEMES = ['auto', 'light', 'dark', 'glass'];
 const OUTPUT_REPORT_TIMEOUT = 15000;
 
 let cardInstanceId = 0;
@@ -87,50 +87,11 @@ class SpaMonitorCard extends LitElement {
    * @param {Object} config - Raw YAML config from HA.
    */
   setConfig(config) {
-    if (!config.sensors || Object.keys(config.sensors).length === 0) {
-      throw new Error('Please define at least one sensor.');
-    }
-
-    if (config.theme && !VALID_THEMES.includes(config.theme)) {
-      throw new Error(`Invalid theme "${config.theme}". Must be: ${VALID_THEMES.join(', ')}`);
-    }
-
-    const resolvedSensors = {};
-    for (const [sensorId, sensorConfig] of Object.entries(config.sensors)) {
-      const preset = SENSOR_PRESETS[sensorId] || {};
-      resolvedSensors[sensorId] = {
-        ...preset,
-        ...sensorConfig,
-        gradient: sensorConfig.gradient || preset.gradient || 'standard',
-      };
-      if (!resolvedSensors[sensorId].entity) {
-        throw new Error(`Sensor "${sensorId}" requires an entity.`);
-      }
-      const sensor = resolvedSensors[sensorId];
-      if (sensor.display_format === 'hours_to_months') {
-        const divisor = sensor.hours_per_month === undefined ? 730.5 : sensor.hours_per_month;
-        const reserve = sensor.hours_reserve === undefined ? 0 : sensor.hours_reserve;
-        if (typeof divisor !== 'number' || !Number.isFinite(divisor) || divisor <= 0) {
-          throw new Error(`sensors.${sensorId}.hours_per_month must be a finite number greater than zero.`);
-        }
-        if (typeof reserve !== 'number' || !Number.isFinite(reserve) || reserve < 0) {
-          throw new Error(`sensors.${sensorId}.hours_reserve must be a finite non-negative number.`);
-        }
-        sensor.hours_per_month = divisor;
-        sensor.hours_reserve = reserve;
-      }
-    }
-
-    if (config.controls?.output_level?.entity !== this._config?.controls?.output_level?.entity) {
+    const resolved = resolveConfig(config);
+    if (resolved.controls.output_level?.entity !== this._config?.controls?.output_level?.entity) {
       this._clearOutputIntent();
     }
-    this._config = {
-      ...config,
-      title: config.title || '',
-      theme: config.theme || 'auto',
-      sensors: resolvedSensors,
-      controls: config.controls || {},
-    };
+    this._config = resolved;
   }
 
   /** @returns {Object} The current resolved config. */
@@ -199,9 +160,14 @@ class SpaMonitorCard extends LitElement {
     if (!isUnavailable) {
       displayValue = this._formatValue(value, sensor);
     }
+    const status = isUnavailable ? 'Unavailable' : getGaugeStatus(value, sensor);
+    const raw = !isUnavailable && sensor.display_format === 'hours_to_months'
+      ? `; ${value} raw hours; displayed months are an estimate` : '';
+    const description = `${sensor.name}: ${displayValue}; ${status}${raw}`;
 
     return html`
-      <div class="gauge ${isUnavailable ? 'unavailable' : ''}">
+      <div class="gauge ${isUnavailable ? 'unavailable' : ''}" role="img"
+        aria-label=${description} title=${description} tabindex="0">
         <span class="gauge-label">${sensor.name}</span>
         <div class="gauge-bar-container">
           <div class="gauge-bar ${gradientClass}"></div>

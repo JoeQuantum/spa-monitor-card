@@ -6,6 +6,8 @@ Fork of [pool-monitor-card](https://github.com/wilsto/pool-monitor-card) by [wil
 
 ![screenshot](docs/screenshot.png)
 
+Screenshot from the published v0.1.1; the current fixes retain that layout.
+
 ---
 
 ## Features
@@ -40,7 +42,10 @@ Fork of [pool-monitor-card](https://github.com/wilsto/pool-monitor-card) by [wil
 
 ## Configuration
 
-The card includes a **visual config editor** — add the card via the UI and configure it with entity pickers, no YAML needed. You can also configure via YAML directly.
+The card includes a **visual config editor** for title, theme and entity selection.
+Advanced ranges, units and conversion options use YAML and survive editor changes.
+The entity IDs below are illustrative, not discovered or verified Aria mappings.
+Confirm your ESP-IQ2020 entities and units, especially the source of the salt value.
 
 ### Full example
 
@@ -84,7 +89,12 @@ The four sensors below have built-in defaults. Just provide an `entity` and the 
 | `salt` | Salt | ppm | 1000 | 3000 | 1500 – 2000 ppm | standard | numeric |
 | `iq_sensor` | IQ Sensor | hours | 508 | 10000 | 1969+ hours (~2+ mo) | depletion | hours_to_months |
 
-Green ranges are from official HotSpring FreshWater documentation. Yellow and red zone boundaries are inferred from ESP-IQ2020 protocol analysis and dealer reports.
+The chemistry target bands retain the project's FreshWater reference ranges.
+Other breakpoints, bar proportions and the IQ countdown bands are project display
+choices. A green band is not proof of water safety or sensor health. The IQ reserve
+is based on owner observations, not a universal manufacturer expiry threshold.
+See [preset provenance](docs/range-provenance.md) for manual editions, PDF pages,
+units, owner reports and the distinction between documented ranges and display choices.
 
 ### Per-sensor options
 
@@ -105,16 +115,17 @@ sensors:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `entity` | string | **Required.** Entity ID for the sensor. |
+| `entity` | string | **Required.** A `sensor.*` entity ID. It need not be loaded when configuration is saved. |
 | `name` | string | Override the display label above the bar. |
 | `unit` | string | Override the unit shown after the value. |
-| `min` | number | Minimum value for the gauge range. |
-| `max` | number | Maximum value for the gauge range. |
-| `decimals` | number | Number of decimal places (default varies by sensor). |
+| `min` | number | Finite lower bound, less than `max`; see scale overrides below. |
+| `max` | number | Finite upper bound, greater than `min`; see scale overrides below. |
+| `decimals` | integer | Decimal places, 0–100 (default varies by sensor). |
 | `gradient` | string | `standard` (red-yellow-green-yellow-red) or `depletion` (green-yellow-red). |
-| `display_format` | string | `hours_to_months` converts raw hours to months. See below. |
-| `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset sets `508` to match the FreshWater IQ forced-stop threshold. |
-| `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (8760 / 12). |
+| `display_format` | string or null | `numeric` or `null` shows the number; `hours_to_months` shows an estimated month count. |
+| `zones` | array or null | Ordered value/position breakpoints; `null` explicitly selects a linear min/max scale. |
+| `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset uses an owner-reported `508`-hour reserve, configurable for your installation. |
+| `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (365.25 × 24 / 12). |
 
 #### display_format: hours_to_months
 
@@ -125,7 +136,60 @@ must be a finite nonnegative number. Invalid options produce a field-specific
 configuration error. Malformed or nonfinite sensor states show `---` without a
 marker; numeric zero remains a valid reading.
 
-A new FreshWater IQ cartridge starts at ~10,000 hours and counts down, but the system stops sampling once 508 hours of reserve remain. The `iq_sensor` preset therefore sets `hours_reserve: 508` and `hours_per_month: 730.5`, giving ~13 months of usable life from a fresh cartridge. Override either value per-sensor to model different cartridge specs.
+Two owners reported IQ monitoring stopping with 508 hours still displayed:
+[first report](https://github.com/Ylianst/ESP-IQ2020/issues/42#issuecomment-3287918736)
+and [second report](https://github.com/Ylianst/ESP-IQ2020/issues/42#issuecomment-3324424968).
+The preset retains this configurable reserve. The calculation gives about 13
+average months from 10,000 raw hours; it is not a guaranteed calendar service life.
+A rounded `0 mo` does not by itself establish expiry. The gauge tooltip and
+accessible description retain raw hours and identify the displayed month estimate.
+This measuring sensor is distinct from the chlorine-generating salt cartridge.
+
+#### Validation and scale overrides
+
+`sensors` must be a nonempty object; each sensor and optional control must be an
+object. Entities use `sensor.*`, `number.*` for output, and `switch.*` for Boost.
+Known options are checked before the card is rendered, including options supplied
+while their display format is inactive. Errors identify the YAML field. Unknown
+extension fields on the card, sensors and supported controls are preserved.
+
+A custom sensor needs an entity, a nonempty `name` and a complete finite scale:
+`min` and `max`, or a `zones` array whose endpoints provide those bounds. Unit
+(default empty), decimals (default 1) and gradient (default `standard`) are optional.
+
+Preset `min`/`max` overrides replace only the outer scale endpoints. The existing
+interior thresholds retain their values and positions. For example, chlorine
+`max: 20` extends the top segment while 1–5 ppm remains at 20–80% from the bottom.
+A bound that crosses an interior threshold is rejected; supply explicit `zones`
+for a different piecewise scale, or `zones: null` for an intentionally linear scale.
+This is a behavior change from older builds that silently ignored preset bounds.
+
+Each zone has finite `value` and `position`. List values in strictly descending
+order and positions in strictly increasing order, from 0 (top) to 100 (bottom).
+The endpoints must match any explicitly supplied max/min. With explicit zones
+and no explicit bounds, the endpoints determine max/min. Duplicate, reversed or
+incomplete scales produce a configuration error.
+
+```yaml
+sensors:
+  custom_reading:
+    entity: sensor.my_spa_reading
+    name: Custom reading
+    unit: units
+    decimals: 0
+    min: 0
+    max: 100
+    zones:
+      - {value: 100, position: 0}
+      - {value: 60, position: 20}
+      - {value: 20, position: 80}
+      - {value: 0, position: 100}
+```
+
+The bar colors stay at their documented percentage bands. The scale maps readings
+to those positions piecewise; there is no automatic chemical-range inference for
+custom sensors. `setpoint` is retained as finite metadata and does not draw a marker
+or alter the scale.
 
 ### Controls
 
@@ -148,53 +212,37 @@ removing the card. No automatic retries or reconnect replay are performed.
 
 ## Sensor Ranges
 
-Each sensor has a color-coded gradient bar with green (ideal), yellow (caution), and red (danger) zones. The green zones are based on **HotSpring official documentation** for FreshWater IQ salt systems. Yellow and red boundaries are inferred from ESP-IQ2020 protocol analysis and dealer service reports.
+Each gauge uses a piecewise scale. Percentages below are measured **from the
+bottom**; raw zone positions in YAML are measured from the top. Indicator centers
+are padded to 5–95%, while the underlying scale and color bands span 0–100%.
+Readings outside min/max remain visible numerically and have explicit below/above
+range text; they do not extend the indicator outside the bar.
 
-### Chlorine
+| Preset | Red low: 0–10% | Yellow low: 10–20% | Green: 20–80% | Yellow high: 80–90% | Red high: 90–100% |
+|---|---|---|---|---|---|
+| Chlorine (ppm) | 0–0.5 | 0.5–1 | 1–5 | 5–8 | 8–10 |
+| pH | 6–6.8 | 6.8–7.2 | 7.2–7.8 | 7.8–8.2 | 8.2–9 |
+| Salt (ppm) | 1000–1250 | 1250–1500 | 1500–2000 | 2000–2500 | 2500–3000 |
 
-| Zone | Range | Bar Position |
-|------|-------|-------------|
-| Red (low) | 0 – 0.5 ppm | 0% – 5% |
-| Yellow (low) | 0.5 – 1.0 ppm | 5% – 10% |
-| **Green (ideal)** | **1.0 – 5.0 ppm** | **10% – 50%** |
-| Yellow (high) | 5.0 – 8.0 ppm | 50% – 80% |
-| Red (high) | 8.0 – 10.0 ppm | 80% – 100% |
+At shared boundaries, green includes its endpoints; yellow includes the boundary
+shared with red. These are display classifications, not alarm thresholds. Confirm
+that the configured salt entity represents the expected quantity and units; this
+card does not establish a conductivity-to-salt conversion or equate a salt-system
+status indicator with an IQ concentration field.
 
-Range: 0 – 10 ppm. The FreshWater salt system targets 1 – 5 ppm free chlorine as measured by the IQ sensor.
+The IQ measuring-sensor countdown uses a depletion scale:
 
-### pH
+| Configured band | Raw hours | Position from bottom |
+|---|---|---|
+| Red | 508–654 | 0–10% |
+| Yellow | 654–1969 | 10–20% |
+| Green | 1969–10000 | 20–100% |
 
-| Zone | Range | Bar Position |
-|------|-------|-------------|
-| Red (low) | 6.0 – 6.8 | 0% – 27% |
-| Yellow (low) | 6.8 – 7.2 | 27% – 40% |
-| **Green (ideal)** | **7.2 – 7.8** | **40% – 60%** |
-| Yellow (high) | 7.8 – 8.2 | 60% – 73% |
-| Red (high) | 8.2 – 9.0 | 73% – 100% |
-
-Range: 6.0 – 9.0 pH. HotSpring recommends 7.2 – 7.8 for bather comfort and sanitizer efficacy.
-
-### Salt
-
-| Zone | Range | Bar Position |
-|------|-------|-------------|
-| Red (low) | 1000 – 1250 ppm | 0% – 12% |
-| Yellow (low) | 1250 – 1500 ppm | 12% – 25% |
-| **Green (ideal)** | **1500 – 2000 ppm** | **25% – 50%** |
-| Yellow (high) | 2000 – 2500 ppm | 50% – 75% |
-| Red (high) | 2500 – 3000 ppm | 75% – 100% |
-
-Range: 1000 – 3000 ppm, target 1750 ppm. **Note:** The IQ module reports a ppm-equivalent value derived from conductivity/TDS measurement, not a direct chemical assay. Actual sodium chloride concentration may differ from the reported value.
-
-### IQ Sensor (cartridge life)
-
-| Zone | Range | Bar Position |
-|------|-------|-------------|
-| Red (depleted) | ≤ 508 hours | 0% – 1% |
-| Yellow (low life) | 508 – 1969 hours | 1% – 20% |
-| **Green (good life)** | **1969 – 10000 hours** | **20% – 100%** |
-
-Range: 508 – 10,000 hours. Displayed as months via `max(0, (value − 508) / 730.5)` rounded to the nearest integer. A new FreshWater IQ cartridge starts at ~10,000 hours (~13 months); sampling stops at 508 hours (the forced-stop reserve). The yellow zone begins at ~2 months remaining.
+654 is included in yellow and 1969 in green. Values below 508 have an explicit
+below-range description. These project bands and the configurable reserve do not
+decode an IQ fault or prove a sensor is expired. Monitoring status and confirmed
+faults require separate integration evidence; a nonzero countdown is not a sensor
+health check.
 
 ---
 
@@ -208,13 +256,6 @@ The `theme` option controls the card's appearance. All themes use glassmorphism 
 | `light` | Forces light mode — translucent white card with dark text. |
 | `dark` | Forces dark mode — translucent dark card with light text. |
 | `glass` | visionOS-style glassmorphism — highly translucent with light text, designed for wallpaper-style dashboard backgrounds. |
-
-### Theme previews
-
-<!-- TODO: Add screenshots for each theme -->
-| Light | Dark | Glass |
-|-------|------|-------|
-| ![light](docs/theme-light.png) | ![dark](docs/theme-dark.png) | ![glass](docs/theme-glass.png) |
 
 The `glass` theme is designed for visionOS-style dashboards where cards float over rich background images. It uses a more translucent background (`rgba(255, 255, 255, 0.08)`) with stronger backdrop blur for a frosted glass effect.
 
@@ -279,6 +320,8 @@ All colors and dimensions are exposed as CSS custom properties for [card-mod](ht
 | `--spa-divider-color` | `rgba(0, 0, 0, 0.06)` | Divider line color |
 
 ### Example card-mod override
+
+Add this block to a complete configuration with your `sensors` entries.
 
 ```yaml
 type: custom:spa-monitor-card
