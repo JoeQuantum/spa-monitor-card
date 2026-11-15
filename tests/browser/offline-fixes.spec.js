@@ -68,6 +68,15 @@ test('C06 Boost is a keyboard button and gauges have text equivalents', async ({
   await expect(page.getByRole('img', { name: /Chlorine: 3.0 ppm; within configured target band/i })).toHaveCount(1);
 });
 
+test('C07 inherited theme overrides work in light dark glass and automatic modes', async ({ page }) => {
+  await mount(page);
+  await page.evaluate(() => document.querySelector('#mount').style.setProperty('--spa-card-bg', 'rgb(12, 34, 56)'));
+  for (const theme of ['light', 'dark', 'glass', 'auto']) {
+    await page.evaluate(async theme => { card.setConfig({ ...card.getConfig(), theme }); card.hass = { ...card.hass, themes: { darkMode: true } }; await card.updateComplete; }, theme);
+    expect(await page.locator('.card').evaluate(e => getComputedStyle(e).backgroundColor)).toBe('rgb(12, 34, 56)');
+  }
+});
+
 test('C05 service failure recovers to the reported state without retry', async ({ page }) => {
   await mount(page);
   await page.evaluate(() => { card.hass.callService = (...args) => { calls.push(args); return Promise.reject(new Error('Rejected')); }; });
@@ -162,4 +171,21 @@ test('C06 output buttons work with keyboard and announce the reported value', as
   await page.keyboard.press('Space');
   expect(await page.evaluate(() => calls.map(c => c[2].value))).toEqual([4, 3]);
   await expect(page.locator('#output-report')).toHaveAttribute('aria-live', 'polite');
+});
+
+test('C07 automatic theme changes retain defaults and instance overrides stay local', async ({ page }) => {
+  await mount(page);
+  const colors = [];
+  for (const darkMode of [false, true, false]) {
+    await page.evaluate(async darkMode => { card.hass = { ...card.hass, themes: { darkMode } }; await card.updateComplete; }, darkMode);
+    colors.push(await page.locator('.card').evaluate(e => getComputedStyle(e).backgroundColor));
+  }
+  expect(colors).toEqual(['rgba(255, 255, 255, 0.72)', 'rgba(30, 30, 30, 0.72)', 'rgba(255, 255, 255, 0.72)']);
+  const backgrounds = await page.evaluate(async () => {
+    const other = document.createElement('spa-monitor-card'); other.setConfig(card.getConfig()); other.hass = card.hass;
+    document.querySelector('#mount').append(other); await other.updateComplete;
+    card.style.setProperty('--spa-card-bg', 'rgb(1, 2, 3)');
+    return [card, other].map(c => getComputedStyle(c.shadowRoot.querySelector('.card')).backgroundColor);
+  });
+  expect(backgrounds).toEqual(['rgb(1, 2, 3)', 'rgba(255, 255, 255, 0.72)']);
 });

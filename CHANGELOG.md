@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 - Apply preset min/max overrides to the scale endpoints while retaining interior thresholds; validate explicit zones and expose range/band text equivalents.
 - Send explicit Boost on/off requests, suppress duplicate pending actions, and recover from service failure, missing reports and disconnects without replay.
 - Support keyboard activation and visible focus for Boost/output controls, reported/pending state announcements and gauge text equivalents.
+- Honor inherited `--spa-*` overrides across light, dark, glass and automatic themes without replacing theme defaults.
 - Correct scale documentation and label IQ months/reserve as a configurable estimate based on owner reports.
 - Reject malformed and nonfinite readings without drawing a gauge marker; preserve valid zero values and recovery.
 - Disable output controls for invalid states or constraints and reject invalid service values.
