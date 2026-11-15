@@ -12,6 +12,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ### Fixed
 
+- Wrap long gauge labels/values and report rendered height to the masonry layout when available.
 - Validate nested configuration, entity domains, finite scales, decimals and supported display options before rendering, with field-specific errors.
 - Apply preset min/max overrides to the scale endpoints while retaining interior thresholds; validate explicit zones and expose range/band text equivalents.
 - Send explicit Boost on/off requests, suppress duplicate pending actions, and recover from service failure, missing reports and disconnects without replay.
