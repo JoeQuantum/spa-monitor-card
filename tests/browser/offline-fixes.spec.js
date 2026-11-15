@@ -189,3 +189,35 @@ test('C07 automatic theme changes retain defaults and instance overrides stay lo
   });
   expect(backgrounds).toEqual(['rgb(1, 2, 3)', 'rgba(255, 255, 255, 0.72)']);
 });
+
+test('C09 clearing and reselecting an editor entity restores advanced options in the same session', async ({ page }) => {
+  await mount(page);
+  const changed = await page.evaluate(async config => {
+    config.controls.boost.extension = { preserve: true };
+    config.sensors.ph.decimals = 0;
+    const editor = document.createElement('spa-monitor-card-editor');
+    editor.setConfig(config); editor.hass = card.hass;
+    document.querySelector('#mount').append(editor); await editor.updateComplete;
+    editor._controlChanged('boost', { detail: { value: '' } });
+    const cleared = editor._config.controls.boost === undefined;
+    editor.setConfig(editor._config); // HA can feed an emitted config back.
+    editor._controlChanged('boost', { detail: { value: 'switch.replacement' } });
+    editor._sensorChanged('ph', { detail: { value: '' } });
+    editor._sensorChanged('ph', { detail: { value: 'sensor.new_ph' } });
+    return { cleared, config: editor._config };
+  }, fixture.config);
+  expect(changed.cleared).toBe(true);
+  expect(changed.config.controls.boost).toEqual({ entity: 'switch.replacement', extension: { preserve: true } });
+  expect(changed.config.sensors.ph.decimals).toBe(0);
+});
+
+test('C09 starter configuration is valid without selecting an arbitrary real spa', async ({ page }) => {
+  await mount(page);
+  const stub = await page.evaluate(() => {
+    const stub = customElements.get('spa-monitor-card').getStubConfig(card.hass);
+    card.setConfig(stub); return stub;
+  });
+  expect(stub).toEqual({ sensors: { ph: { entity: 'sensor.replace_with_spa_ph' } } });
+  await expect(page.locator('.gauge.unavailable')).toHaveCount(1);
+  await expect(page.locator('.controls-row')).toHaveCount(0);
+});

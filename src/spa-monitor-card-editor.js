@@ -70,6 +70,8 @@ class SpaMonitorCardEditor extends LitElement {
    */
   setConfig(config) {
     this._config = { ...config };
+    this._removedSensors ??= new Map();
+    this._removedControls ??= new Map();
   }
 
   render() {
@@ -84,14 +86,14 @@ class SpaMonitorCardEditor extends LitElement {
         <div class="section">
           <div class="section-title">General</div>
           <div class="field">
-            <label>Title</label>
-            <input type="text"
+            <label for="card-title">Title</label>
+            <input type="text" id="card-title"
               .value=${this._config.title || ''}
               @input=${this._titleChanged}>
           </div>
           <div class="field">
-            <label>Theme</label>
-            <select @change=${this._themeChanged}>
+            <label for="card-theme">Theme</label>
+            <select id="card-theme" @change=${this._themeChanged}>
               <option value="auto" ?selected=${theme === 'auto'}>Auto</option>
               <option value="light" ?selected=${theme === 'light'}>Light</option>
               <option value="dark" ?selected=${theme === 'dark'}>Dark</option>
@@ -163,8 +165,10 @@ class SpaMonitorCardEditor extends LitElement {
     const sensors = { ...this._config.sensors };
 
     if (entity) {
-      sensors[id] = { ...(sensors[id] || {}), entity };
+      sensors[id] = { ...(sensors[id] || this._removedSensors.get(id) || {}), entity };
+      this._removedSensors.delete(id);
     } else {
+      if (sensors[id]) this._removedSensors.set(id, sensors[id]);
       delete sensors[id];
     }
 
@@ -176,8 +180,10 @@ class SpaMonitorCardEditor extends LitElement {
     const controls = { ...this._config.controls };
 
     if (entity) {
-      controls[controlId] = { ...(controls[controlId] || {}), entity };
+      controls[controlId] = { ...(controls[controlId] || this._removedControls.get(controlId) || {}), entity };
+      this._removedControls.delete(controlId);
     } else {
+      if (controls[controlId]) this._removedControls.set(controlId, controls[controlId]);
       delete controls[controlId];
     }
 

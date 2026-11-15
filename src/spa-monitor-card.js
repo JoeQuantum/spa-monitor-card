@@ -93,6 +93,11 @@ class SpaMonitorCard extends LitElement {
     return document.createElement('spa-monitor-card-editor');
   }
 
+  static getStubConfig() {
+    // Deliberately select no real device: users may have more than one spa.
+    return { sensors: { ph: { entity: 'sensor.replace_with_spa_ph' } } };
+  }
+
   /**
    * Called by HA when card config is set or updated.
    * Validates config, merges sensor presets, and stores resolved config.

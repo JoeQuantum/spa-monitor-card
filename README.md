@@ -43,7 +43,9 @@ Screenshot from the published v0.1.1; the current fixes retain that layout.
 ## Configuration
 
 The card includes a **visual config editor** for title, theme and entity selection.
-Advanced ranges, units and conversion options use YAML and survive editor changes.
+The starter uses `sensor.replace_with_spa_ph`; select your own entity before use.
+It intentionally selects no real device when several spas may be present. Advanced
+ranges, units and conversion options use YAML and survive editor changes.
 The entity IDs below are illustrative, not discovered or verified Aria mappings.
 Confirm your ESP-IQ2020 entities and units, especially the source of the salt value.
 
@@ -358,7 +360,7 @@ The card includes a built-in visual editor accessible from the HA dashboard UI. 
 - **Sensor entity pickers** for all 4 predefined sensors (Chlorine, pH, Salt, IQ Sensor)
 - **Control entity pickers** for Output Level (number domain) and Boost (switch domain)
 
-All entity pickers support domain filtering and custom entity input.
+All entity pickers support domain filtering and custom entity input. Clearing and reselecting a sensor/control in the same editor session restores its advanced options. Saving the cleared configuration still removes that entity; restoration does not survive closing the editor.
 
 ---
 
