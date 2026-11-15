@@ -14,7 +14,7 @@ Screenshot from the published v0.1.1; the current fixes retain that layout.
 
 - **Vertical bar gauges** with color-coded gradients (red/yellow/green zones)
 - **3D triangle indicators** positioned by current sensor value
-- **Salt system controls**: output level stepper and boost toggle
+- **Salt system controls**: bounded output stepper and acknowledged Boost on/off requests
 - **4 theme modes**: auto, light, dark, and glass (visionOS-style)
 - **Visual config editor** with entity pickers (no YAML required)
 - **Glassmorphism design** with backdrop blur and translucent surfaces
@@ -196,7 +196,7 @@ or alter the scale.
 | Control | Type | Entity pattern | Description |
 |---------|------|----------------|-------------|
 | `output_level` | number | `number.*_salt_power` | Salt system output stepper. Min/max/step come from the entity; unavailable or invalid states disable control. |
-| `boost` | switch | `switch.*_salt_boost` | Salt boost toggle. Rendered as a tap button with lightning icon. |
+| `boost` | switch | `switch.*_salt_boost` | Explicit Boost on/off request. The keyboard-accessible button displays reported state. |
 
 Both controls are optional. Omit the `controls` section entirely to hide the controls row and divider.
 
@@ -207,6 +207,20 @@ failed or timed-out requests. A matching report settles the request; service
 success alone does not. Pending intent clears after 15 seconds without matching
 feedback, on service failure, unavailability, changed constraints/entity, or
 removing the card. No automatic retries or reconnect replay are performed.
+
+Boost sends `switch.turn_on` or `switch.turn_off` from the reported state. It stays
+disabled while waiting for a matching report so repeated taps cannot reverse an
+unconfirmed request. Service success alone does not settle the request. A service
+error, 15-second timeout, invalid/unavailable report, entity change or removal
+clears pending intent; an old promise cannot affect a newer request. No remaining
+Boost duration is inferred. Boost and configured output level stay separate.
+Physical panel/firmware timing still needs validation; a timeout cannot recall an
+already-sent command.
+
+Both controls support Tab navigation, Enter/Space activation and visible focus.
+Reported values, pending/failure status and gauge band/range descriptions are
+available to assistive technology. Gauge tooltips expose the same text without
+changing the existing layout.
 
 ---
 

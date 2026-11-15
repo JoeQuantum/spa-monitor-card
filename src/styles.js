@@ -183,6 +183,10 @@ export const styles = css`
   }
 
   .boost-btn {
+    appearance: none;
+    box-sizing: content-box;
+    font: inherit;
+    color: inherit;
     width: 100px;
     background: var(--spa-control-bg);
     border-radius: 12px;
@@ -225,10 +229,22 @@ export const styles = css`
     color: var(--spa-text-secondary);
   }
 
-  .gauge:focus-visible {
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+  .stepper-btn:focus-visible, .boost-btn:focus-visible, .gauge:focus-visible {
     outline: 2px solid var(--primary-color, #03a9f4);
     outline-offset: 3px;
   }
+  .boost-btn:disabled { cursor: default; }
 
   /* ===== Unavailable state ===== */
   .gauge.unavailable {

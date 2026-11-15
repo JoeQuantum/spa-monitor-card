@@ -38,6 +38,9 @@ class SpaMonitorCard extends LitElement {
     this._inflightOutput = null;
     this._outputTimer = null;
     this._outputError = '';
+    this._pendingBoost = null;
+    this._boostTimer = null;
+    this._boostError = '';
   }
 
   static get properties() {
@@ -68,11 +71,20 @@ class SpaMonitorCard extends LitElement {
         this._clearOutputIntent();
       }
     }
+    const boost = this._pendingBoost;
+    if (boost) {
+      const state = value?.states?.[boost.entity];
+      if (!['on', 'off'].includes(state?.state)
+          || (state !== previous?.states?.[boost.entity] && state.state === boost.value)) {
+        this._clearBoostIntent();
+      }
+    }
     this.requestUpdate('hass', previous);
   }
 
   disconnectedCallback() {
     this._clearOutputIntent();
+    this._clearBoostIntent();
     super.disconnectedCallback();
   }
 
@@ -90,6 +102,9 @@ class SpaMonitorCard extends LitElement {
     const resolved = resolveConfig(config);
     if (resolved.controls.output_level?.entity !== this._config?.controls?.output_level?.entity) {
       this._clearOutputIntent();
+    }
+    if (resolved.controls.boost?.entity !== this._config?.controls?.boost?.entity) {
+      this._clearBoostIntent();
     }
     this._config = resolved;
   }
@@ -233,15 +248,18 @@ class SpaMonitorCard extends LitElement {
       <div class="output-level-wrapper ${isUnavailable ? 'unavailable' : ''}">
         <span class="output-level-label">Output Level</span>
         <div class="output-level" aria-busy=${pending ? 'true' : 'false'} title=${status}>
-          <button class="stepper-btn"
+          <span class="sr-only" role="status">${status}</span>
+          <button type="button" class="stepper-btn"
             aria-label="Decrease output level"
+            aria-describedby="output-report"
             ?disabled=${decrease === null}
             @click=${() => this._adjustOutputLevel(-1)}>
             −
           </button>
-          <span class="output-level-value">${isUnavailable ? '---' : current.value}</span>
-          <button class="stepper-btn"
+          <span id="output-report" class="output-level-value" aria-live="polite">${isUnavailable ? '---' : current.value}</span>
+          <button type="button" class="stepper-btn"
             aria-label="Increase output level"
+            aria-describedby="output-report"
             ?disabled=${increase === null}
             @click=${() => this._adjustOutputLevel(1)}>
             +
@@ -254,31 +272,34 @@ class SpaMonitorCard extends LitElement {
   _renderBoost() {
     const entity = this._config.controls.boost.entity;
     const stateObj = this.hass.states[entity];
-    const isUnavailable = this._isUnavailable(stateObj);
+    const isUnavailable = !['on', 'off'].includes(stateObj?.state);
     const isOn = stateObj?.state === 'on';
+    const pending = this._pendingBoost;
+    const status = pending
+      ? `Requested Boost ${pending.value}; waiting for the device report.`
+      : this._boostError || (isUnavailable ? 'Boost unavailable.' : `Boost reported ${stateObj.state}.`);
 
     return html`
-      <div class="boost-btn ${isOn ? 'active' : ''} ${isUnavailable ? 'unavailable' : ''}"
-        @click=${() => !isUnavailable && this._toggleBoost()}>
+      <button type="button" class="boost-btn ${isOn ? 'active' : ''} ${isUnavailable ? 'unavailable' : ''}"
+        aria-label="Boost" aria-pressed=${isOn ? 'true' : 'false'}
+        aria-busy=${pending ? 'true' : 'false'} aria-describedby="boost-status"
+        ?disabled=${isUnavailable || !!pending} title=${status}
+        @click=${this._requestBoost}>
         <svg class="boost-icon" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          aria-hidden="true"
           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
         </svg>
         <span class="boost-label">Boost</span>
         <span class="boost-state">${isUnavailable ? '---' : (isOn ? 'On' : 'Off')}</span>
-      </div>
+      </button>
+      <span class="sr-only" id="boost-status" role="status">${status}</span>
     `;
   }
 
   // ==========================================
   // HELPERS
   // ==========================================
-
-  _isUnavailable(stateObj) {
-    if (!stateObj) return true;
-    const s = stateObj.state;
-    return s === 'unavailable' || s === 'unknown' || s === undefined;
-  }
 
   _formatValue(value, sensor) {
     if (!Number.isFinite(value)) return '---';
@@ -362,11 +383,31 @@ class SpaMonitorCard extends LitElement {
     if (this._pendingOutput && this._pendingOutput.value !== value) this._sendOutputIntent();
   }
 
-  _toggleBoost() {
-    const entity = this._config.controls.boost.entity;
-    this.hass.callService('switch', 'toggle', {
-      entity_id: entity,
-    });
+  _clearBoostIntent(error = '') {
+    clearTimeout(this._boostTimer);
+    this._boostTimer = null;
+    this._pendingBoost = null;
+    this._boostError = error;
+    this.requestUpdate();
+  }
+
+  async _requestBoost() {
+    const entity = this._config?.controls.boost?.entity;
+    const reported = this.hass?.states?.[entity]?.state;
+    if (!this.isConnected || this._pendingBoost || !['on', 'off'].includes(reported)) return;
+    const request = { entity, value: reported === 'on' ? 'off' : 'on' };
+    this._pendingBoost = request;
+    this._boostError = '';
+    this._boostTimer = setTimeout(() => {
+      this._clearBoostIntent('Boost request timed out; showing the reported state.');
+    }, OUTPUT_REPORT_TIMEOUT);
+    this.requestUpdate();
+    try {
+      await this.hass.callService('switch', `turn_${request.value}`, { entity_id: entity });
+      // A successful service call alone is not a device report.
+    } catch {
+      if (this._pendingBoost === request) this._clearBoostIntent('Boost request failed; showing the reported state.');
+    }
   }
 }
 
