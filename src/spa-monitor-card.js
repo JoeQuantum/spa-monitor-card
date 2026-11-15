@@ -17,6 +17,7 @@ import {
 } from './sensors.js';
 import './spa-monitor-card-editor.js';
 import { resolveConfig } from './config.js';
+import { readSensor } from './readings.js';
 import { finiteNumber, numberState, nextNumberStep } from './numbers.js';
 
 const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
@@ -41,6 +42,9 @@ class SpaMonitorCard extends LitElement {
     this._pendingBoost = null;
     this._boostTimer = null;
     this._boostError = '';
+    this._freshnessTimer = null;
+    this._nextFreshnessAt = null;
+    this._refreshAge = () => this.requestUpdate();
   }
 
   static get properties() {
@@ -82,10 +86,29 @@ class SpaMonitorCard extends LitElement {
     this.requestUpdate('hass', previous);
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener('visibilitychange', this._refreshAge);
+    this.requestUpdate();
+  }
+
   disconnectedCallback() {
     this._clearOutputIntent();
     this._clearBoostIntent();
+    clearTimeout(this._freshnessTimer);
+    this._freshnessTimer = null;
+    document.removeEventListener('visibilitychange', this._refreshAge);
     super.disconnectedCallback();
+  }
+
+  updated() {
+    clearTimeout(this._freshnessTimer);
+    this._freshnessTimer = null;
+    if (!this.isConnected || !this.hass || !this._config) return;
+    // Use the rendered reading's deadline. It may have expired between render
+    // and updated; re-reading here could lose the required final refresh.
+    if (Number.isFinite(this._nextFreshnessAt)) this._freshnessTimer = setTimeout(this._refreshAge,
+      Math.min(2147483647, Math.max(1, this._nextFreshnessAt - Date.now())));
   }
 
   /** @returns {HTMLElement} The config editor element for the HA UI. */
@@ -129,6 +152,8 @@ class SpaMonitorCard extends LitElement {
   // ==========================================
 
   render() {
+    this._nextFreshnessAt = null;
+    this._renderTime = Date.now();
     if (!this._config || !this.hass) {
       return html``;
     }
@@ -169,18 +194,22 @@ class SpaMonitorCard extends LitElement {
   }
 
   _renderSingleGauge(id, sensor) {
-    const stateObj = this.hass.states[sensor.entity];
-    const value = finiteNumber(stateObj?.state);
+    const reading = readSensor(sensor, this.hass.states, this._renderTime);
+    if (Number.isFinite(reading.expiresAt)) {
+      this._nextFreshnessAt = this._nextFreshnessAt === null ? reading.expiresAt
+        : Math.min(this._nextFreshnessAt, reading.expiresAt);
+    }
+    const value = reading.value;
     const isUnavailable = value === null;
 
     const gradientClass = `gradient-${sensor.gradient || 'standard'}`;
     const position = isUnavailable ? 0 : getIndicatorPosition(value, sensor);
 
-    let displayValue = '---';
+    let displayValue = reading.reason === 'stale' ? 'Stale' : '---';
     if (!isUnavailable) {
       displayValue = this._formatValue(value, sensor);
     }
-    const status = isUnavailable ? 'Unavailable' : getGaugeStatus(value, sensor);
+    const status = isUnavailable ? reading.status : getGaugeStatus(value, sensor);
     const raw = !isUnavailable && sensor.display_format === 'hours_to_months'
       ? `; ${value} raw hours; displayed months are an estimate` : '';
     const description = `${sensor.name}: ${displayValue}; ${status}${raw}`;
