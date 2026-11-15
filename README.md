@@ -16,7 +16,7 @@ Screenshot from the published v0.1.1; the current fixes retain that layout.
 - **3D triangle indicators** positioned by current sensor value
 - **Salt system controls**: bounded output stepper and acknowledged Boost on/off requests
 - **4 theme modes**: auto, light, dark, and glass (visionOS-style)
-- **Visual config editor** with entity pickers (no YAML required)
+- **Visual config editor** with expandable sensor groups, device-scoped suggestions and validated reading options
 - **Glassmorphism design** with backdrop blur and translucent surfaces
 - **Fully customizable** via CSS custom properties and card-mod
 
@@ -42,12 +42,44 @@ Screenshot from the published v0.1.1; the current fixes retain that layout.
 
 ## Configuration
 
-The card includes a **visual config editor** for title, theme and entity selection.
+The card includes a **visual config editor** with expandable sensor groups.
 The starter uses `sensor.replace_with_spa_ph`; select your own entity before use.
-It intentionally selects no real device when several spas may be present. Advanced
-ranges, units and conversion options use YAML and survive editor changes.
+It intentionally selects no real device when several spas may be present. Each
+group includes entity, label, unit, range, decimals, gradient, display format,
+IQ reserve/conversion, attribute, availability, sample age and history options.
 The entity IDs below are illustrative, not discovered or verified Aria mappings.
 Confirm your ESP-IQ2020 entities and units, especially the source of the salt value.
+
+The editor scopes suggestions to the one device represented by the configured
+sensor/control entities, using HA's entity registry rather than names. An optional
+top-level `device_id`, also available in the device selector, explicitly selects
+the suggestion scope. A mixed-device
+configuration is flagged; without an explicit scope it suggests no additional
+entities. This never rewrites existing selections. Existing helper/offline IDs
+remain selectable in their own field, and custom IDs can be entered deliberately.
+Device scope filters suggestions only, not the data the card displays. Availability,
+timestamp and history pickers allow explicit helper sources outside that device.
+Existing custom sensor entries also appear in the editor. Add new custom sensor
+definitions and edit custom breakpoint arrays in YAML; the editor preserves them.
+
+Field edits apply when you leave the field and the full configuration is valid.
+Errors keep the draft visible without replacing HA's last accepted configuration.
+Correct the fields before saving, or use **Discard pending edits**. A genuinely
+different YAML configuration replaces the draft. Invalid local edits do not
+survive closing the editor or reloading the page.
+
+Blank numeric/label overrides restore the preset; preset values appear as
+placeholders. A blank **Unit** explicitly hides its unit; **Use default unit**
+removes that override. Zero is retained. The **Use a linear scale** checkbox
+temporarily replaces preset/custom breakpoints; switching it off restores the
+previous breakpoints during that editor session. Custom sensors still need
+valid bounds. Availability/freshness switches and the reading-action selector
+likewise preserve removed advanced options for restoration within the session.
+
+The editor shows maximum sample age in **minutes** and stores `freshness.max_age`
+in **seconds**. Enabling availability or freshness creates an incomplete draft
+until its required source/settings are supplied; no device state, timestamp or
+sampling deadline is guessed. Unknown YAML extension fields are retained.
 
 ### Full example
 
@@ -79,6 +111,7 @@ controls:
 | `theme` | string | `auto` | `auto`, `light`, `dark`, or `glass`. See [Themes](#themes). |
 | `sensors` | object | **required** | At least one sensor must be defined. |
 | `controls` | object | *(none)* | Optional salt system controls. Omit to hide the controls row. |
+| `device_id` | string | *(inferred when possible)* | Optional HA device registry ID to scope editor suggestions. It does not change configured entities. |
 
 ### Predefined sensors
 

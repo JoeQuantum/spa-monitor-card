@@ -102,3 +102,26 @@ test('C11 optional more-info works with pointer and keyboard and does not call s
   await page.locator('.gauge').click();
   expect(await page.evaluate(() => moreInfo.length)).toBe(3);
 });
+
+test('C09 editor pickers use device IDs and retain configured custom sensor options', async ({ page }) => {
+  await mount(page);
+  const result = await page.evaluate(async config => {
+    config.sensors.custom={entity:'sensor.custom',name:'Custom',min:0,max:10,extension:7};
+    const editor=document.createElement('spa-monitor-card-editor');editor.setConfig(config);
+    editor.hass={...card.hass,entities:Object.fromEntries(Object.keys(card.hass.states).map(entity=>[entity,{device_id:'spa-a'}]))};
+    editor.hass.states={...editor.hass.states,'sensor.other':{state:'7'},'sensor.custom':{state:'2'}};
+    editor.hass.entities['sensor.other']={device_id:'spa-b'};
+    document.querySelector('#mount').append(editor);await editor.updateComplete;
+    const pickers=[...editor.shadowRoot.querySelectorAll('ha-entity-picker')];
+    const custom=pickers.find(p=>p.value==='sensor.custom');
+    const includes=pickers[0].includeEntities;
+    editor._sensorChanged('custom',{detail:{value:''}});await editor.updateComplete;
+    const cleared=editor.shadowRoot.querySelector('ha-entity-picker[aria-label="Custom Entity"]');
+    const retainedRow=!!cleared && cleared.value==='';
+    editor._sensorChanged('custom',{detail:{value:'sensor.new'}});
+    return {customFound:!!custom,retainedRow,includes,custom:editor._config.sensors.custom};
+  }, fixture.config);
+  expect(result.customFound).toBe(true);expect(result.includes).not.toContain('sensor.other');
+  expect(result.retainedRow).toBe(true);
+  expect(result.custom).toEqual({entity:'sensor.new',name:'Custom',min:0,max:10,extension:7});
+});

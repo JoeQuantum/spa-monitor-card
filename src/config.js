@@ -116,6 +116,7 @@ export function resolveConfig(config) {
   object(config.sensors, 'sensors');
   if (Object.keys(config.sensors).length === 0) fail('sensors', 'must define at least one sensor.');
   if (own(config, 'title')) text(config.title, 'title');
+  if (own(config, 'device_id')) text(config.device_id, 'device_id', false);
   if (own(config, 'theme') && !['auto', 'light', 'dark', 'glass'].includes(config.theme)) fail('theme', 'must be auto, light, dark or glass.');
   const controls = {};
   if (own(config, 'controls')) {
