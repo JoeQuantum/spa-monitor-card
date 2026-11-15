@@ -3,9 +3,9 @@
   "package": "spa-monitor-card",
   "version": "0.1.1",
   "filename": "spa-monitor-card.js",
-  "sha256": "eeaf5224ff066da4d5bb85ad4d264da340c2a5f397e4518fd17e64009c7e12b3",
+  "sha256": "c81004d78295d0ef599bdda74a0bdae79eeb7657c3bc570837b0361f6cfccd7b",
   "inputs": {
-    "CHANGELOG.md": "fa50de89dc5827a5cdaed090b698123fd9a5de42198d4415ab7ce224b35f2ad8",
+    "CHANGELOG.md": "97d1ae2448d0d08e90fe97304396fcd944b352d1f6ba38715eb562122eac3d34",
     "LICENSE": "4b67b69612ce9b77067a20f599142dcfa0ad89a87b275d3ac56cb4abcaac8750",
     "hacs.json": "a02656f4888660f016d508153f1f4c7caa4f5226214a55f7bb036dc536b0c207",
     "package-lock.json": "26429f759f16ec5b71404aeb6d86810f00cb59c37fd964622ed2d47ab3251dd5",
@@ -17,7 +17,7 @@
     "src/numbers.js": "a697007524c43f54d080e9a09f3242efff2a9082caf64e68d2aeccacd5afadbd",
     "src/sensors.js": "714c21f3ccdeebc5ae8c8981d7634f1c4223c327949f37445e384a25439024f4",
     "src/spa-monitor-card-editor.js": "3aa92fae3cb584eb3b722db69f3000b6de89e6c2eef618d671fdad9e8b12b737",
-    "src/spa-monitor-card.js": "64ff7af84bd130ae1bc580365cf8f606ce25711f0231281ded90aa111e25e3ee",
-    "src/styles.js": "4c69ad3fb9f1d7d58ed9090834e5366fa6934faae1ef7e5835a1fedb724c6c08"
+    "src/spa-monitor-card.js": "8d8670289642bee45e4b97064dfa82052892d3d80cd5ac1c98dcebf4a6217252",
+    "src/styles.js": "c4c46b68a347072af7ba8ae918d6d312e7aad6d80420a51bf79c55ce2ef9d7ef"
   }
 }

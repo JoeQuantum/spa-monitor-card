@@ -53,7 +53,7 @@ test('controls call the configured services and disable when unavailable', async
   await page.locator('.boost-btn').click();
   expect(await page.evaluate(() => calls)).toEqual([
     ['number', 'set_value', { entity_id: 'number.output', value: 4 }],
-    ['switch', 'toggle', { entity_id: 'switch.boost' }],
+    ['switch', 'turn_on', { entity_id: 'switch.boost' }],
   ]);
   await updateState(page, 'number.output', 'unavailable');
   await expect(page.locator('.stepper-btn').first()).toBeDisabled();
