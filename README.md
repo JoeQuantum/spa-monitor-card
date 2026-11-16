@@ -48,8 +48,7 @@ The card includes a **visual config editor** with expandable sensor groups.
 The starter uses `sensor.replace_with_spa_ph`; select your own entity before use.
 It intentionally selects no real device when several spas may be present. Each
 group includes entity, label, unit, range, decimals, gradient, display format,
-IQ reserve/conversion, attribute, availability, sample age and history options.
-Trend captions are configured in YAML at this stage; editor fields follow separately.
+IQ reserve/conversion, attribute, availability, sample age, history and trend options.
 The entity IDs below are illustrative, not discovered or verified Aria mappings.
 Confirm your ESP-IQ2020 entities and units, especially the source of the salt value.
 
@@ -61,7 +60,7 @@ configuration is flagged; without an explicit scope it suggests no additional
 entities. This never rewrites existing selections. Existing helper/offline IDs
 remain selectable in their own field, and custom IDs can be entered deliberately.
 Device scope filters suggestions only, not the data the card displays. Availability,
-timestamp and history pickers allow explicit helper sources outside that device.
+timestamp, history and trend pickers allow explicit helper sources outside that device.
 Existing custom sensor entries also appear in the editor. Add new custom sensor
 definitions and edit custom breakpoint arrays in YAML; the editor preserves them.
 
@@ -281,10 +280,10 @@ shares the gauge's configured history action; it does not change its target.
 
 ### Trend captions
 
-Configure an optional `trend` object in YAML with a numeric derivative
-entity and its exact reported rate unit. Helpers can be outside the selected spa
-device; this stage does not expose trend fields in the visual editor. The caption
-uses the approved Gauges with captions treatment: `Rising 0.02 /h`, `Falling 0.12 ppm/h`, or a signed numeric
+Enable **Show trend caption** in a sensor group, select a numeric derivative
+entity and enter its exact reported rate unit. The entity picker allows helpers
+outside the selected spa device. The caption uses the approved Gauges with
+captions treatment: `Rising 0.02 /h`, `Falling 0.12 ppm/h`, or a signed numeric
 rate within the direction deadband. Estimated month readings also show
 `Estimate`. Direction and the unrounded rate are included in the gauge's
 accessible description. Captions wrap at narrow widths.
@@ -317,14 +316,14 @@ Zero has no direction. Tiny nonzero changes display, for example,
 | `deadband` | `0` | Finite nonnegative direction threshold in the declared rate unit. |
 | `hysteresis` | `0` | Finite value between zero and deadband; expands the entry threshold and lowers the exit threshold. |
 | `availability` | None | Same explicit entity/state condition as the primary reading. |
-| `freshness` | None | Same explicit timestamp and `max_age` contract as the primary reading; seconds in YAML. |
+| `freshness` | None | Same explicit timestamp and `max_age` contract as the primary reading; seconds in YAML, minutes in the editor. |
 
 Both the primary reading and rate must be valid and pass their configured
 availability/age checks. A missing or mismatched rate unit hides the caption.
 Age checks expire without another HA report. Direction resets on unavailable
 data, elapsed freshness, reconfiguration and card removal. Omitting `trend`
-disables it. The visual editor preserves configured trend fields as advanced
-YAML, but trend field editing is introduced in the next stage.
+disables it; toggling it off/on in the editor preserves its options within that
+session. Incomplete settings stay as an invalid draft until corrected.
 
 Use Home Assistant's numeric [Derivative helper](https://www.home-assistant.io/integrations/derivative/),
 not the boolean Trend helper. Configure averaging and time units upstream;

@@ -48,3 +48,15 @@ test('device options preserve an explicit offline device and prefer user labels'
   // Invalid YAML must remain editable, not throw while sorting picker options.
   assert.deepEqual(editorDevices({ device_id: 42 }, {}), []);
 });
+
+test('deep trend option patches preserve siblings and nested extensions without mutating accepted YAML', async () => {
+  const {patchSensorOption}=await import('../src/editor-support.js');
+  const config={sensors:{ph:{entity:'sensor.ph',freshness:{attribute:'sampled_at',max_age:60},trend:{entity:'sensor.rate',unit:'/h',extension:0,freshness:{entity:'sensor.clock',max_age:120,extension:true}}}}};
+  const before=structuredClone(config);
+  let next=patchSensorOption(config,'ph',['trend','freshness','max_age'],0);
+  assert.equal(next.sensors.ph.trend.freshness.max_age,0);
+  next=patchSensorOption(next,'ph',['trend','freshness','entity'],undefined,true);
+  assert.deepEqual(next.sensors.ph.trend,{entity:'sensor.rate',unit:'/h',extension:0,freshness:{max_age:0,extension:true}});
+  assert.deepEqual(next.sensors.ph.freshness,config.sensors.ph.freshness);
+  assert.deepEqual(config,before);
+});
