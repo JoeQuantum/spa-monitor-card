@@ -18,6 +18,7 @@ import {
 import './spa-monitor-card-editor.js';
 import { resolveConfig } from './config.js';
 import { readSensor } from './readings.js';
+import { readTrend, trendText } from './trends.js';
 import { finiteNumber, numberState, nextNumberStep } from './numbers.js';
 
 const CARD_VERSION = '__CARD_VERSION__'; // Filled from package.json by Rollup.
@@ -43,6 +44,7 @@ class SpaMonitorCard extends LitElement {
     this._boostTimer = null;
     this._boostError = '';
     this._freshnessTimer = null;
+    this._trendStates = new Map();
     this._nextFreshnessAt = null;
     this._refreshAge = () => this.requestUpdate();
   }
@@ -63,6 +65,14 @@ class SpaMonitorCard extends LitElement {
   set hass(value) {
     const previous = this._hass;
     this._hass = value;
+    // Process every HA snapshot, including a brief unavailable report that Lit
+    // could coalesce before rendering. Direction must not survive a data gap.
+    if (this.isConnected && this._config && value) {
+      const now = Date.now();
+      for (const [id, sensor] of Object.entries(this._config.sensors)) {
+        this._readTrend(id, sensor, readSensor(sensor, value.states, now), value.states, now);
+      }
+    } else this._trendStates.clear();
     const pending = this._pendingOutput;
     if (pending) {
       const state = value?.states?.[pending.entity];
@@ -93,6 +103,7 @@ class SpaMonitorCard extends LitElement {
   }
 
   disconnectedCallback() {
+    this._trendStates.clear();
     this._clearOutputIntent();
     this._clearBoostIntent();
     clearTimeout(this._freshnessTimer);
@@ -128,6 +139,7 @@ class SpaMonitorCard extends LitElement {
    */
   setConfig(config) {
     const resolved = resolveConfig(config);
+    this._trendStates.clear();
     if (resolved.controls.output_level?.entity !== this._config?.controls?.output_level?.entity) {
       this._clearOutputIntent();
     }
@@ -205,10 +217,9 @@ class SpaMonitorCard extends LitElement {
 
   _renderSingleGauge(id, sensor) {
     const reading = readSensor(sensor, this.hass.states, this._renderTime);
-    if (Number.isFinite(reading.expiresAt)) {
-      this._nextFreshnessAt = this._nextFreshnessAt === null ? reading.expiresAt
-        : Math.min(this._nextFreshnessAt, reading.expiresAt);
-    }
+    const trend = this._readTrend(id, sensor, reading, this.hass.states, this._renderTime);
+    this._trackExpiry(reading);
+    this._trackExpiry(trend);
     const value = reading.value;
     const isUnavailable = value === null;
 
@@ -223,7 +234,9 @@ class SpaMonitorCard extends LitElement {
     const raw = !isUnavailable && sensor.display_format === 'hours_to_months'
       ? `; ${value} raw hours; displayed months are an estimate` : '';
     const opensHistory = sensor.tap_action?.action === 'more-info';
-    const description = `${sensor.name}: ${displayValue}; ${status}${raw}${opensHistory ? '; Open history and details' : ''}`;
+    const caption = trend ? trendText(trend, sensor.trend.decimals) : '';
+    const trendDescription = trend ? `; Trend: ${caption}; reported rate ${trend.value} ${trend.unit}` : '';
+    const description = `${sensor.name}: ${displayValue}; ${status}${raw}${trendDescription}${opensHistory ? '; Open history and details' : ''}`;
 
     return html`
       <div class="gauge ${isUnavailable ? 'unavailable' : ''}" role=${opensHistory ? 'button' : 'img'}
@@ -240,8 +253,31 @@ class SpaMonitorCard extends LitElement {
           ` : ''}
         </div>
         <span class="gauge-value">${displayValue}</span>
+        ${trend ? html`<span class="gauge-trend" data-direction=${trend.direction} aria-hidden="true">${caption}</span>`
+          : !isUnavailable && sensor.display_format === 'hours_to_months'
+            ? html`<span class="gauge-estimate" aria-hidden="true">Estimate</span>` : ''}
       </div>
     `;
+  }
+
+  _trackExpiry(reading) {
+    if (Number.isFinite(reading?.expiresAt)) this._nextFreshnessAt = this._nextFreshnessAt === null
+      ? reading.expiresAt : Math.min(this._nextFreshnessAt, reading.expiresAt);
+  }
+
+  _readTrend(id, sensor, reading, states, now) {
+    if (!this.isConnected) return readTrend(sensor.trend, states, reading, 'flat', now);
+    const previous = this._trendStates.get(id);
+    // A suspended tab may receive a fresh sample before its old expiry timer
+    // runs. Do not carry hysteresis over that gap in either source's freshness.
+    const direction = previous?.expiresAt <= now ? 'flat' : previous?.direction;
+    const trend = readTrend(sensor.trend, states, reading, direction, now);
+    if (trend) {
+      const deadlines = [reading.expiresAt, trend.expiresAt].filter(Number.isFinite);
+      this._trendStates.set(id, { direction: trend.direction,
+        expiresAt: deadlines.length ? Math.min(...deadlines) : Infinity });
+    } else this._trendStates.delete(id);
+    return trend;
   }
 
   _renderTriangle(id) {

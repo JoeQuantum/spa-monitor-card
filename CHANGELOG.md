@@ -5,9 +5,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
-### Layout integration
+### Layout integration and trends
 
 - Use the native Home Assistant card wrapper and content-driven Sections sizing while retaining the established gauge presentation and CSS overrides.
+- Add the approved Gauges with captions treatment for optional numeric derivative sources, with exact rate units (including unitless `/h`), direction hysteresis and accessible unrounded values. Label displayed month counts as estimates.
+- Hide trends when either reading fails availability/freshness checks; expire captions without a new report and reset direction across data gaps, reconfiguration and card removal.
 
 ### Added
 

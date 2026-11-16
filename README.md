@@ -6,7 +6,8 @@ Fork of [pool-monitor-card](https://github.com/wilsto/pool-monitor-card) by [wil
 
 ![screenshot](docs/screenshot.png)
 
-Screenshot from the published v0.1.1; the current fixes retain that layout.
+Screenshot from the published v0.1.1; current development retains the gauges and
+adds optional trend captions beneath their readings.
 
 ---
 
@@ -17,6 +18,7 @@ Screenshot from the published v0.1.1; the current fixes retain that layout.
 - **Salt system controls**: bounded output stepper and acknowledged Boost on/off requests
 - **4 theme modes**: auto, light, dark, and glass (visionOS-style)
 - **Visual config editor** with expandable sensor groups, device-scoped suggestions and validated reading options
+- **Optional trend captions** from explicit numeric rate entities, with units, hysteresis and sample-age checks
 - **Glassmorphism design** with backdrop blur and translucent surfaces
 - **Fully customizable** via CSS custom properties and card-mod
 
@@ -47,6 +49,7 @@ The starter uses `sensor.replace_with_spa_ph`; select your own entity before use
 It intentionally selects no real device when several spas may be present. Each
 group includes entity, label, unit, range, decimals, gradient, display format,
 IQ reserve/conversion, attribute, availability, sample age and history options.
+Trend captions are configured in YAML at this stage; editor fields follow separately.
 The entity IDs below are illustrative, not discovered or verified Aria mappings.
 Confirm your ESP-IQ2020 entities and units, especially the source of the salt value.
 
@@ -163,6 +166,7 @@ sensors:
 | `availability` | object | Optional `{entity: binary_sensor.monitoring, state: "on"}` condition; `state` defaults to `on`. Unknown/missing availability does not pass. |
 | `freshness` | object | Explicit sample timestamp source and positive `max_age` in seconds; see below. No freshness inference is enabled by default. |
 | `tap_action` | object | Optional `{action: more-info}` to open HA history/details; `entity` can explicitly override the source. Default action is `none`. |
+| `trend` | object | Optional numeric rate source and exact reported unit, displayed below the reading; see [Trend captions](#trend-captions). |
 | `hours_reserve` | number | Hours subtracted from the value before the months conversion. Defaults to `0`; the `iq_sensor` preset uses an owner-reported `508`-hour reserve, configurable for your installation. |
 | `hours_per_month` | number | Divisor used by `hours_to_months`. Defaults to `730.5` (365.25 × 24 / 12). |
 
@@ -272,8 +276,65 @@ source remains unavailable even if its cached attributes contain numbers.
 
 The optional `more-info` action opens Home Assistant's standard entity dialog
 using click, Enter or Space. It sends no spa service command and is also useful
-for inspecting history while a current reading is unavailable. Derived trend
-displays are not included.
+for inspecting history while a current reading is unavailable. A trend caption
+shares the gauge's configured history action; it does not change its target.
+
+### Trend captions
+
+Configure an optional `trend` object in YAML with a numeric derivative
+entity and its exact reported rate unit. Helpers can be outside the selected spa
+device; this stage does not expose trend fields in the visual editor. The caption
+uses the approved Gauges with captions treatment: `Rising 0.02 /h`, `Falling 0.12 ppm/h`, or a signed numeric
+rate within the direction deadband. Estimated month readings also show
+`Estimate`. Direction and the unrounded rate are included in the gauge's
+accessible description. Captions wrap at narrow widths.
+
+```yaml
+sensors:
+  ph:
+    entity: sensor.spa_ph
+    trend:
+      entity: sensor.spa_ph_derivative
+      unit: /h  # Must match this entity's unit_of_measurement exactly.
+      decimals: 2
+      deadband: 0.02
+      hysteresis: 0.005
+```
+
+These IDs and thresholds are illustrative, not discovered Aria entities or
+recommended noise limits. With those example thresholds, a rising direction
+starts at `0.025 /h` and clears at `0.015 /h`; falling uses the negative
+counterparts. Between those thresholds the previous direction is retained.
+Zero has no direction. Tiny nonzero changes display, for example,
+`Rising < 0.01 /h` instead of a directed zero.
+
+| Trend option | Default | Meaning |
+|---|---|---|
+| `entity` | Required | Numeric `sensor.*` rate; other domains require an explicit numeric `attribute`. |
+| `unit` | Required | Exact entity `unit_of_measurement`, ending in `/s`, `/min`, `/h` or `/d`. Unitless inputs may produce `/h`. No unit conversion or relabeling occurs. |
+| `attribute` | None | Exact numeric attribute to read instead of state; missing attributes never fall back. The containing entity must report the declared rate unit. |
+| `decimals` | `2` | Integer from 0 to 6. |
+| `deadband` | `0` | Finite nonnegative direction threshold in the declared rate unit. |
+| `hysteresis` | `0` | Finite value between zero and deadband; expands the entry threshold and lowers the exit threshold. |
+| `availability` | None | Same explicit entity/state condition as the primary reading. |
+| `freshness` | None | Same explicit timestamp and `max_age` contract as the primary reading; seconds in YAML. |
+
+Both the primary reading and rate must be valid and pass their configured
+availability/age checks. A missing or mismatched rate unit hides the caption.
+Age checks expire without another HA report. Direction resets on unavailable
+data, elapsed freshness, reconfiguration and card removal. Omitting `trend`
+disables it. The visual editor preserves configured trend fields as advanced
+YAML, but trend field editing is introduced in the next stage.
+
+Use Home Assistant's numeric [Derivative helper](https://www.home-assistant.io/integrations/derivative/),
+not the boolean Trend helper. Configure averaging and time units upstream;
+the card does not estimate rates from browser updates or smooth values itself.
+Choose a window and thresholds after inspecting actual sample cadence and noise.
+HA may recalculate a derivative without a new measurement when its optional
+max sub-interval is configured. Such updates, and a flat rate, do not prove
+sample freshness. No age limit is inferred; provide trustworthy sample-time
+sources explicitly when available. A trend is not a water-safety or dosing
+recommendation.
 
 ### Controls
 
@@ -396,6 +457,7 @@ Theme defaults use private fallback properties so inherited or host-level `--spa
 | `--spa-header-color` | `rgba(0, 0, 0, 0.75)` | Header title text color |
 | `--spa-label-color` | `rgba(0, 0, 0, 0.6)` | Sensor label and Output Level label color |
 | `--spa-value-color` | `rgba(0, 0, 0, 0.45)` | Sensor value text color |
+| `--spa-trend-color` | Uses label color | Trend and estimate caption text color |
 
 ### Bar gauges
 
