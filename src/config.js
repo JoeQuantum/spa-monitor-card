@@ -36,36 +36,58 @@ function zones(value, path) {
   return result;
 }
 
+/** Resolve explicit sources without consulting HA or inferring measurement age. */
+function readingSource(input, path) {
+  object(input, path);
+  const source = { ...input };
+  if (own(source, 'attribute')) text(source.attribute, `${path}.attribute`, false);
+  entity(source.entity, `${path}.entity`, own(source, 'attribute') ? '[a-z_][a-z0-9_]*' : 'sensor');
+  if (own(source, 'availability')) {
+    object(source.availability, `${path}.availability`);
+    entity(source.availability.entity, `${path}.availability.entity`, '[a-z_][a-z0-9_]*');
+    const state = own(source.availability, 'state') ? source.availability.state : 'on';
+    text(state, `${path}.availability.state`, false);
+    if (['unknown', 'unavailable'].includes(state)) fail(`${path}.availability.state`, 'must identify a known available state.');
+    source.availability = { ...source.availability, state };
+  }
+  if (own(source, 'freshness')) {
+    object(source.freshness, `${path}.freshness`);
+    const freshness = { ...source.freshness };
+    if (own(freshness, 'entity')) entity(freshness.entity, `${path}.freshness.entity`, '[a-z_][a-z0-9_]*');
+    if (own(freshness, 'attribute')) text(freshness.attribute, `${path}.freshness.attribute`, false);
+    if (!own(freshness, 'entity') && !own(freshness, 'attribute')) fail(`${path}.freshness`, 'requires an explicit sample-time entity or attribute.');
+    finite(freshness.max_age, `${path}.freshness.max_age`);
+    if (freshness.max_age <= 0 || !Number.isFinite(freshness.max_age * 1000)) fail(`${path}.freshness.max_age`, 'must be a positive finite duration in seconds.');
+    source.freshness = freshness;
+  }
+  return source;
+}
+
 function sensorConfig(id, input) {
   const path = `sensors.${id}`;
   object(input, path);
   const preset = own(SENSOR_PRESETS, id) ? SENSOR_PRESETS[id] : {};
-  const sensor = { unit: '', decimals: 1, gradient: 'standard', display_format: null, ...preset, ...input };
-  if (own(sensor, 'attribute')) text(sensor.attribute, `${path}.attribute`, false);
-  entity(sensor.entity, `${path}.entity`, own(sensor, 'attribute') ? '[a-z_][a-z0-9_]*' : 'sensor');
+  const sensor = readingSource({ unit: '', decimals: 1, gradient: 'standard', display_format: null, ...preset, ...input }, path);
   text(sensor.name, `${path}.name`, false);
   text(sensor.unit, `${path}.unit`);
   if (!Number.isInteger(sensor.decimals) || sensor.decimals < 0 || sensor.decimals > 100) fail(`${path}.decimals`, 'must be an integer from 0 to 100.');
   if (!['standard', 'depletion'].includes(sensor.gradient)) fail(`${path}.gradient`, 'must be standard or depletion.');
   if (![null, 'numeric', 'hours_to_months'].includes(sensor.display_format)) fail(`${path}.display_format`, 'must be null, numeric or hours_to_months.');
   if (own(sensor, 'setpoint')) finite(sensor.setpoint, `${path}.setpoint`);
-  if (own(sensor, 'availability')) {
-    object(sensor.availability, `${path}.availability`);
-    entity(sensor.availability.entity, `${path}.availability.entity`, '[a-z_][a-z0-9_]*');
-    const state = own(sensor.availability, 'state') ? sensor.availability.state : 'on';
-    text(state, `${path}.availability.state`, false);
-    if (['unknown', 'unavailable'].includes(state)) fail(`${path}.availability.state`, 'must identify a known available state.');
-    sensor.availability = { ...sensor.availability, state };
-  }
-  if (own(sensor, 'freshness')) {
-    object(sensor.freshness, `${path}.freshness`);
-    const freshness = { ...sensor.freshness };
-    if (own(freshness, 'entity')) entity(freshness.entity, `${path}.freshness.entity`, '[a-z_][a-z0-9_]*');
-    if (own(freshness, 'attribute')) text(freshness.attribute, `${path}.freshness.attribute`, false);
-    if (!own(freshness, 'entity') && !own(freshness, 'attribute')) fail(`${path}.freshness`, 'requires an explicit sample-time entity or attribute.');
-    finite(freshness.max_age, `${path}.freshness.max_age`);
-    if (freshness.max_age <= 0 || !Number.isFinite(freshness.max_age * 1000)) fail(`${path}.freshness.max_age`, 'must be a positive finite duration in seconds.');
-    sensor.freshness = freshness;
+  if (own(sensor, 'trend')) {
+    const trendPath = `${path}.trend`;
+    const trend = readingSource(sensor.trend, trendPath);
+    text(trend.unit, `${trendPath}.unit`, false);
+    if (trend.unit.trim() !== trend.unit || !/^.*\/(s|min|h|d)$/.test(trend.unit)) fail(`${trendPath}.unit`, 'must declare a rate unit ending in /s, /min, /h or /d (for example ppm/h or /h for unitless readings).');
+    if (!own(trend, 'deadband')) trend.deadband = 0;
+    if (!own(trend, 'hysteresis')) trend.hysteresis = 0;
+    if (!own(trend, 'decimals')) trend.decimals = 2;
+    finite(trend.deadband, `${trendPath}.deadband`);
+    finite(trend.hysteresis, `${trendPath}.hysteresis`);
+    if (trend.deadband < 0) fail(`${trendPath}.deadband`, 'must be non-negative in the declared rate unit.');
+    if (trend.hysteresis < 0 || trend.hysteresis > trend.deadband || !Number.isFinite(trend.deadband + trend.hysteresis)) fail(`${trendPath}.hysteresis`, 'must be between zero and deadband with a finite sum.');
+    if (!Number.isInteger(trend.decimals) || trend.decimals < 0 || trend.decimals > 6) fail(`${trendPath}.decimals`, 'must be an integer from 0 to 6.');
+    sensor.trend = trend;
   }
   if (own(sensor, 'tap_action')) {
     object(sensor.tap_action, `${path}.tap_action`);

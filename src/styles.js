@@ -77,7 +77,7 @@ export const styles = css`
     flex: 1;
     min-width: 0;
   }
-  .gauge-label, .gauge-value {
+  .gauge-label, .gauge-value, .gauge-trend, .gauge-estimate {
     max-width: 100%;
     overflow-wrap: anywhere;
     text-align: center;
@@ -134,6 +134,14 @@ export const styles = css`
     font-size: 12px;
     font-weight: 500;
     color: var(--spa-value-color, var(--_spa-value-color));
+  }
+  .gauge-trend, .gauge-estimate {
+    font-size: 12px;
+    line-height: 1.4;
+    padding-inline: 3px;
+    box-sizing: border-box;
+    color: var(--spa-trend-color, var(--spa-label-color, var(--_spa-label-color)));
+    font-variant-numeric: tabular-nums;
   }
 
   /* ===== Divider ===== */

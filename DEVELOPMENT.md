@@ -51,8 +51,8 @@ This branch adds explicit data-source/freshness contracts, registry-scoped edito
 suggestions, existing custom-sensor editing, optional native HA history access,
 long-label wrapping and masonry sizing. The approved sensor-group editor now
 covers high-value options, preserves invalid drafts until corrected/discarded,
-and retains advanced YAML options. Full localization, trend displays and new
-card layouts remain separate. See `docs/validation/packaged-sensor-groups.md` for current
+and retains advanced YAML options. Full localization and additional-reading
+layouts remain separate. Trend captions are covered by the packaging follow-up below. See `docs/validation/packaged-sensor-groups.md` for current
 checks and limitations; `docs/validation/editor-data-sources.md` records the
 preceding data-source candidate.
 Earlier dated validation and packaging reports remain historical.
@@ -115,6 +115,6 @@ runtime versions, followed by a clean installation and the complete card checks.
 
 ## Layout/trend packaging progress
 
-Use native `ha-card`, retain the existing gauges and public CSS variables, and report content-driven Sections height with conservative minimum columns. Existing masonry sizing continues to measure rendered height. This stage adds no trend configuration, rendering or editor fields.
+Add optional numeric rate captions under the approved gauges, exact reported-unit matching including unitless `/h`, per-reading hysteresis, invalid-data resets and primary/derivative expiry. Accessible labels retain unrounded rates and existing history actions. Month counts show `Estimate`. Configure trends in YAML at this stage; editor fields follow in stage 3.
 
-Current packaging validation: `docs/validation/packaged-ha-layout.md`.
+Current packaging validation: `docs/validation/packaged-ha-layout.md`, `docs/validation/packaged-trend-captions.md`.
