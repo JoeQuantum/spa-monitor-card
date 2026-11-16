@@ -5,6 +5,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### Layout integration
+
+- Use the native Home Assistant card wrapper and content-driven Sections sizing while retaining the established gauge presentation and CSS overrides.
+
 ### Added
 
 - Read explicitly configured numeric attributes, gate readings on an availability entity, and expire readings using an explicit sample timestamp and maximum age.

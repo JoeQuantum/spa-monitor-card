@@ -35,6 +35,9 @@ export const styles = css`
   }
 
   .card {
+    display: block;
+    box-sizing: border-box;
+    transition: none;
     background: var(--spa-card-bg, var(--_spa-card-bg));
     backdrop-filter: blur(var(--spa-card-blur, var(--_spa-card-blur)));
     -webkit-backdrop-filter: blur(var(--spa-card-blur, var(--_spa-card-blur)));
