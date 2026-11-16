@@ -151,6 +151,12 @@ class SpaMonitorCard extends LitElement {
       + (this._config && this._hasControls() ? 90 : 0)) / 50);
   }
 
+  /** Let Sections size the height from content, including theme overrides. */
+  getGridOptions() {
+    const count = Object.keys(this._config?.sensors || {}).length;
+    return { columns: 12, rows: 'auto', min_columns: count > 2 ? 12 : 6 };
+  }
+
   // ==========================================
   // RENDERING
   // ==========================================
@@ -168,14 +174,14 @@ class SpaMonitorCard extends LitElement {
     const isGlass = theme === 'glass';
 
     return html`
-      <div class="card ${isDark ? 'dark' : ''} ${isGlass ? 'glass' : ''}">
+      <ha-card class="card ${isDark ? 'dark' : ''} ${isGlass ? 'glass' : ''}">
         ${this._config.title ? this._renderHeader() : ''}
         ${this._renderGauges()}
         ${this._hasControls() ? html`
           <div class="divider"></div>
           ${this._renderControls()}
         ` : ''}
-      </div>
+      </ha-card>
     `;
   }
 

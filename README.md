@@ -344,6 +344,21 @@ health check.
 
 ---
 
+## Home Assistant layout
+
+The card uses Home Assistant's native `ha-card` wrapper and keeps its existing
+appearance and public `--spa-*` style overrides. Masonry sizing follows the
+rendered height. In Sections, the card requests 12 columns and content-driven
+height (`rows: auto`); one or two gauges can use a six-column minimum, while
+three or more retain the full-section minimum. Additional layout treatments are
+not included in this change.
+
+Keep height automatic when using larger bars, longer labels or controls.
+Explicit user-supplied grid sizing and custom CSS can still require adjustment.
+See the [HA custom-card contract](https://contributors.home-assistant.io/frontend/custom-ui/card/).
+The native wrapper and public variables were checked with card-mod v4.2.1 in the
+temporary HA 2026.11.1 lab; this does not certify every installed theme or backdrop.
+
 ## Themes
 
 The `theme` option controls the card's appearance. All themes use glassmorphism (translucent backgrounds with backdrop blur).

@@ -112,3 +112,9 @@ Recheck advisories when updating the lockfile. The decision above records a
 specific residual build dependency, not a claim that the complete tree is free
 of advisories. Build-tool upgrades were tested before pinning the unchanged
 runtime versions, followed by a clean installation and the complete card checks.
+
+## Layout/trend packaging progress
+
+Use native `ha-card`, retain the existing gauges and public CSS variables, and report content-driven Sections height with conservative minimum columns. Existing masonry sizing continues to measure rendered height. This stage adds no trend configuration, rendering or editor fields.
+
+Current packaging validation: `docs/validation/packaged-ha-layout.md`.
