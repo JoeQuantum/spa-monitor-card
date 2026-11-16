@@ -172,3 +172,64 @@ test('C09 sensor groups fit narrow editors and preserve expanded state across un
   await ph.locator('summary').focus(); await page.keyboard.press('Space');
   await expect(ph).not.toHaveAttribute('open');
 });
+
+test('C11 trend editor creates an atomic draft, validates units and preserves zero and default precision',async({page})=>{
+  await editor(page);const ph=await open(page,'ph');
+  await ph.getByLabel('Show trend caption',{exact:true}).check();
+  await expect(page.getByRole('alert')).toContainText('trend.entity');
+  expect(await page.evaluate(()=>edits.length)).toBe(0);
+  await pick(ph,'Trend entity','sensor.helper_rate');
+  await fill(ph,'Trend rate unit','pH');
+  await expect(ph.getByLabel('Trend rate unit',{exact:true})).toHaveAttribute('aria-invalid','true');
+  expect(await page.evaluate(()=>edits.length)).toBe(0);
+  await fill(ph,'Trend rate unit','/h');
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toEqual({entity:'sensor.helper_rate',unit:'/h'});
+  await fill(ph,'Trend deadband','0.2');await fill(ph,'Trend hysteresis','0.3');
+  await expect(page.getByRole('alert')).toContainText('trend.hysteresis');
+  await page.evaluate(()=>editor.setConfig(editor._acceptedConfig));
+  await expect(ph.getByLabel('Trend hysteresis',{exact:true})).toHaveValue('0.3');
+  await fill(ph,'Trend hysteresis','0.1');await fill(ph,'Trend decimal places','0');
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toEqual({entity:'sensor.helper_rate',unit:'/h',deadband:0.2,hysteresis:0.1,decimals:0});
+  await fill(ph,'Trend decimal places','');
+  expect(await page.evaluate(()=>Object.hasOwn(edits.at(-1).sensors.ph.trend,'decimals'))).toBe(false);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('C11 nested trend availability and freshness edit losslessly, convert minutes and restore toggles',async({page})=>{
+  const c=structuredClone(fixture.config);c.sensors.ph.freshness={attribute:'primary_sample',max_age:300};
+  c.sensors.ph.trend={entity:'sensor.helper',unit:'/h',extension:0,freshness:{attribute:'sampled_at',max_age:60,extension:'keep'}};
+  await editor(page,c);const ph=await open(page,'ph');
+  await fill(ph,'Maximum trend sample age (minutes)','0.05');
+  await ph.getByLabel('Require trend availability',{exact:true}).check();
+  await pick(ph,'Trend availability entity','binary_sensor.rate_available');
+  await fill(ph,'Trend available state','ready');
+  await pick(ph,'Trend sample timestamp entity (optional)','sensor.rate_clock');
+  await fill(ph,'Trend sample timestamp attribute','');
+  const expected={entity:'sensor.helper',unit:'/h',extension:0,freshness:{entity:'sensor.rate_clock',max_age:3,extension:'keep'},availability:{entity:'binary_sensor.rate_available',state:'ready'}};
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toEqual(expected);
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.freshness)).toEqual(c.sensors.ph.freshness);
+  await ph.getByLabel('Check trend sample age',{exact:true}).uncheck();
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend.freshness)).toBeUndefined();
+  await ph.getByLabel('Check trend sample age',{exact:true}).check();
+  await ph.getByLabel('Show trend caption',{exact:true}).uncheck();
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toBeUndefined();
+  await ph.getByLabel('Show trend caption',{exact:true}).check();
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toEqual(expected);
+  await page.locator('#mount').evaluate(el=>el.style.width='280px');
+  const size=await page.locator('.editor').evaluate(el=>({width:el.clientWidth,scroll:el.scrollWidth}));
+  expect(size.scroll).toBeLessThanOrEqual(size.width);
+});
+
+test('C11 trend attribute mode accepts explicit non-sensor helpers and new YAML replaces invalid drafts',async({page})=>{
+  await editor(page);const ph=await open(page,'ph');await ph.getByLabel('Show trend caption',{exact:true}).check();
+  await fill(ph,'Trend numeric attribute','rate');
+  const picker=ph.locator('ha-entity-picker[aria-label="Trend entity"]');expect(await picker.evaluate(e=>e.includeDomains)).toBeUndefined();
+  await pick(ph,'Trend entity','number.helper');await fill(ph,'Trend rate unit','/h');
+  expect(await page.evaluate(()=>edits.at(-1).sensors.ph.trend)).toEqual({entity:'number.helper',attribute:'rate',unit:'/h'});
+  await fill(ph,'Trend numeric attribute','');await expect(page.getByRole('alert')).toContainText('trend.entity');
+  const c=structuredClone(fixture.config);c.sensors.ph.trend={entity:'sensor.new_helper',unit:'/min',decimals:3};
+  await page.evaluate(c=>editor.setConfig(c),c);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(ph.getByLabel('Trend rate unit',{exact:true})).toHaveValue('/min');
+  await expect(ph.getByLabel('Trend numeric attribute',{exact:true})).toHaveValue('');
+});

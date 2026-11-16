@@ -1,0 +1,802 @@
+{
+  "date": "2026-11-15",
+  "local_commit": "6e993afd750d13bc1c877e7d0074f637fd245055",
+  "environment": {
+    "home_assistant_core": "2026.11.1",
+    "frontend": "20261028.5",
+    "python": "3.14.5",
+    "aioesphomeapi": "46.25.0",
+    "node": "22.23.5",
+    "playwright": "1.65.0",
+    "browser_channel": "chrome"
+  },
+  "counts": {
+    "unit": 37,
+    "built_browser": 67,
+    "ha_browser": 41,
+    "native_trend_editor": 8,
+    "native_layout_helper": 5,
+    "ha_api": 19,
+    "restart": 7
+  },
+  "total_passed": 184,
+  "total_failed": 0,
+  "expected_failures": 0,
+  "built_browser_stats": {
+    "startTime": "2026-11-15T19:33:07.323Z",
+    "duration": 6145.557,
+    "expected": 67,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "implementation": [
+    "Approved optional gauge captions and visible month-estimate caption",
+    "Exact reported rate unit contract, including unitless /h",
+    "Per-reading hysteresis, unavailable-state reset and primary/derivative expiry",
+    "Accessible descriptions retain raw rate and existing history action",
+    "Native editor supports all trend fields and nested availability/freshness"
+  ],
+  "test_driven_fix": "The initial new detach test found direction state could be repopulated by queued Lit rendering. Disconnected updates now leave direction state empty; final local and HA suites pass.",
+  "remaining": [
+    "Live Aria source IDs, units and trustworthy sample times",
+    "Upstream averaging windows and noise thresholds from actual installation data",
+    "Physical controls/report and home theme/browser/install/rollback acceptance",
+    "C08 optional additional-reading layouts; C12 localization/RTL; C13 temperature/ORP"
+  ],
+  "suites": {
+    "unit": [
+      {
+        "name": "artifact verification rejects stale source, altered bundles and inconsistent release metadata",
+        "status": "PASS"
+      },
+      {
+        "name": "nested shapes fail with actionable paths, not runtime property errors",
+        "status": "PASS"
+      },
+      {
+        "name": "known entities require matching domains without requiring HA to load them",
+        "status": "PASS"
+      },
+      {
+        "name": "finite bounds, precision, labels and supported enums are validated",
+        "status": "PASS"
+      },
+      {
+        "name": "valid zero settings and unknown extensions survive without input or preset mutation",
+        "status": "PASS"
+      },
+      {
+        "name": "custom sensors need a name and complete scale, with explicit linear support",
+        "status": "PASS"
+      },
+      {
+        "name": "zones reject duplicate, unordered, mismatched and nonfinite breakpoints",
+        "status": "PASS"
+      },
+      {
+        "name": "preset endpoint overrides preserve interior thresholds and interpolate their new ends",
+        "status": "PASS"
+      },
+      {
+        "name": "textual band boundaries agree with the scale and identify out-of-range values",
+        "status": "PASS"
+      },
+      {
+        "name": "entity suggestions follow registry device identity and retain existing helpers",
+        "status": "PASS"
+      },
+      {
+        "name": "mixed-device configurations do not silently choose a device",
+        "status": "PASS"
+      },
+      {
+        "name": "attribute sources allow other domains while explicit scope preserves existing selections",
+        "status": "PASS"
+      },
+      {
+        "name": "nested option patches preserve extensions, explicit blanks and numeric zero without mutating input",
+        "status": "PASS"
+      },
+      {
+        "name": "device options preserve an explicit offline device and prefer user labels",
+        "status": "PASS"
+      },
+      {
+        "name": "deep trend option patches preserve siblings and nested extensions without mutating accepted YAML",
+        "status": "PASS"
+      },
+      {
+        "name": "states require complete finite decimal numbers, while zero remains valid",
+        "status": "PASS"
+      },
+      {
+        "name": "number metadata rejects malformed bounds/steps and out-of-range reports",
+        "status": "PASS"
+      },
+      {
+        "name": "adjacent steps respect nonzero minima, off-grid reports and unreachable maxima",
+        "status": "PASS"
+      },
+      {
+        "name": "fractional steps send stable decimal values and stop at bounds",
+        "status": "PASS"
+      },
+      {
+        "name": "explicit attribute sources preserve zero and never fall back to state",
+        "status": "PASS"
+      },
+      {
+        "name": "availability conditions distinguish known disabled from unknown state",
+        "status": "PASS"
+      },
+      {
+        "name": "sample timestamps require timezone and valid calendar/time fields",
+        "status": "PASS"
+      },
+      {
+        "name": "freshness requires explicit sample time and expires at the configured deadline",
+        "status": "PASS"
+      },
+      {
+        "name": "separate sample-time entity supports unchanged samples without using transport age",
+        "status": "PASS"
+      },
+      {
+        "name": "source, availability, freshness and history settings validate known fields",
+        "status": "PASS"
+      },
+      {
+        "name": "release notes select an exact version, not adjacent entries",
+        "status": "PASS"
+      },
+      {
+        "name": "missing or empty notes block publication",
+        "status": "PASS"
+      },
+      {
+        "name": "the four water-care presets have finite ordered scales",
+        "status": "PASS"
+      },
+      {
+        "name": "piecewise interpolation agrees at each segment midpoint",
+        "status": "PASS"
+      },
+      {
+        "name": "extreme finite readings clamp to the ends instead of escaping the card",
+        "status": "PASS"
+      },
+      {
+        "name": "custom scales without zones use their own bounds",
+        "status": "PASS"
+      },
+      {
+        "name": "trend contracts reject malformed sources, units, precision and thresholds without mutating YAML",
+        "status": "PASS"
+      },
+      {
+        "name": "unitless HA derivatives retain their explicit rate unit and attribute sources never fall back",
+        "status": "PASS"
+      },
+      {
+        "name": "trend hysteresis remains stable through threshold noise, resets at exit and changes direction deliberately",
+        "status": "PASS"
+      },
+      {
+        "name": "trends require finite derivative data and exact declared units; an unavailable primary suppresses them",
+        "status": "PASS"
+      },
+      {
+        "name": "derivative freshness and availability use explicit contracts, never HA transport age",
+        "status": "PASS"
+      },
+      {
+        "name": "trend text does not round tiny changes into a directed zero or call a deadband proof of stability",
+        "status": "PASS"
+      }
+    ],
+    "built_browser": [
+      {
+        "name": "released bundle registers the spa card and renders the four configured readings",
+        "status": "PASS"
+      },
+      {
+        "name": "invalid basic configuration is rejected before rendering",
+        "status": "PASS"
+      },
+      {
+        "name": "unknown, unavailable and missing sensors hide the marker and recover",
+        "status": "PASS"
+      },
+      {
+        "name": "IQ life formatting applies the configured reserve and conversion",
+        "status": "PASS"
+      },
+      {
+        "name": "controls call the configured services and disable when unavailable",
+        "status": "PASS"
+      },
+      {
+        "name": "optional controls stay absent and editor changes preserve YAML overrides",
+        "status": "PASS"
+      },
+      {
+        "name": "themes, multiple cards and supported widths retain the current presentation",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"error\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"NaN\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"Infinity\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"7.5oops\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 invalid number never sends a service command",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 rejects a zero hours-per-month divisor",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 output control honors an entity step of two",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 rejects nonfinite/nonpositive conversion settings with field-specific errors",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 rapid clicks retain desired output while the display follows reports",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 service calls serialize and coalesce without treating success as a report",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 service rejection clears queued intent and next click uses reported state",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 reversing queued clicks back to the in-flight value can still be confirmed",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 lost reports time out without retries or fabricated state",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 unavailable or replaced entities discard intent and late service completions",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 fractional steps and boundary buttons prevent redundant requests",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 long labels wrap and masonry sizing follows rendered card height",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 explicit attributes never fall back and unavailable sources hide cached readings",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 explicit availability does not mistake unknown for enabled",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 freshness expires without a HA update and a repeated sample value recovers",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 freshness reconfiguration clears timers and unknown timestamps cannot imply freshness",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 expiry between rendering and scheduling still refreshes the displayed sample",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 optional more-info works with pointer and keyboard and does not call services",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 editor pickers use device IDs and retain configured custom sensor options",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 approved sensor groups support keyboard expansion and lossless raw option editing",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 invalid numeric drafts remain visible through HA feedback and publish only after correction",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 blank units differ from restoring the preset and clearing numeric overrides retains zero semantics",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 freshness and availability drafts apply atomically and preserve nested extensions on toggles",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 lifetime settings and explicit null formats preserve precision and validate reserve/divisor",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 custom zones survive linear-mode round trips and custom rows survive removal",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 device selection and history actions retain unrelated fields and optional overrides",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 sensor groups fit narrow editors and preserve expanded state across unrelated edits",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 trend editor creates an atomic draft, validates units and preserves zero and default precision",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 nested trend availability and freshness edit losslessly, convert minutes and restore toggles",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 trend attribute mode accepts explicit non-sensor helpers and new YAML replaces invalid drafts",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 uses a native card wrapper while retaining public style overrides",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 Sections keeps content-driven height and protects the four-gauge width",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 rejects malformed nested configuration with field paths before rendering",
+        "status": "PASS"
+      },
+      {
+        "name": "C03 range overrides change endpoints without moving preset thresholds",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 Boost sends explicit state and suppresses repeated unconfirmed commands",
+        "status": "PASS"
+      },
+      {
+        "name": "C06 Boost is a keyboard button and gauges have text equivalents",
+        "status": "PASS"
+      },
+      {
+        "name": "C07 inherited theme overrides work in light dark glass and automatic modes",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 service failure recovers to the reported state without retry",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 lost reports time out without retries or a fabricated Boost state",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 invalid reports, replaced entities and removed cards discard pending Boost",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 a report before service completion confirms Boost and isolates later failures",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 missing startup entities render unavailable and invalid config leaves the last valid config intact",
+        "status": "PASS"
+      },
+      {
+        "name": "C03 below and above scale readings have distinct textual equivalents",
+        "status": "PASS"
+      },
+      {
+        "name": "C06 output buttons work with keyboard and announce the reported value",
+        "status": "PASS"
+      },
+      {
+        "name": "C07 automatic theme changes retain defaults and instance overrides stay local",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 clearing and reselecting an editor entity restores advanced options in the same session",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 starter configuration is valid without selecting an arbitrary real spa",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 approved captions show signed rates with accessible raw values and remain optional",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 captions retain direction through noise with separate state for each reading",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 invalid rates, primary values, units and availability hide captions and reset direction",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 coalesced unavailable reports, source changes and detach clear hysteresis",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 derivative and primary freshness expire independently without another HA report",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 a fresh report after suspended expiry does not inherit the old direction",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 derivative expiry between render and scheduling still removes the caption",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 approved captions wrap at phone widths and inherit readable theme tokens",
+        "status": "PASS"
+      }
+    ],
+    "ha_browser": [
+      {
+        "name": "Candidate renders four readings inside actual Lovelace",
+        "status": "PASS"
+      },
+      {
+        "name": "Dashboard controls reach real HA services and native API",
+        "status": "PASS"
+      },
+      {
+        "name": "Native missing values hide marker; numeric zero recovers",
+        "status": "PASS"
+      },
+      {
+        "name": "Device disconnect disables controls and reconnect restores them",
+        "status": "PASS"
+      },
+      {
+        "name": "Real visual editor opens domain-filtered entity pickers and saves overrides",
+        "status": "PASS"
+      },
+      {
+        "name": "Light dark glass and automatic HA themes render",
+        "status": "PASS"
+      },
+      {
+        "name": "Desktop tablet and mobile widths fit without card overflow",
+        "status": "PASS"
+      },
+      {
+        "name": "Multiple dashboard cards use distinct SVG ids",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"error\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"NaN\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"Infinity\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 rejects invalid reading \"7.5oops\"",
+        "status": "PASS"
+      },
+      {
+        "name": "C01 invalid number disables controls and cannot send a command",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 zero divisor shows a field-specific HA configuration error",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 output honors entity step two",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 rapid increments preserve intent and wait for a matching report",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 boundary actions send no redundant native commands",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 timeout preserves report and clears pending intent without retry",
+        "status": "PASS"
+      },
+      {
+        "name": "C04 disconnect cancels pending intent and never replays it",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 nested YAML errors identify their fields inside the real HA editor",
+        "status": "PASS"
+      },
+      {
+        "name": "C02 custom scales preserve valid zero and permit missing startup entities",
+        "status": "PASS"
+      },
+      {
+        "name": "C03 range override uses the new endpoint and keeps the interior target",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 Boost uses explicit requests, blocks duplicates and waits for the native report",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 real Boost timeout clears intent without retries and follows a later report",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 unavailable Boost discards pending intent and never replays on reconnect",
+        "status": "PASS"
+      },
+      {
+        "name": "C05 malformed Boost state cannot produce a native command",
+        "status": "PASS"
+      },
+      {
+        "name": "C06 keyboard Boost activation and gauge text work inside Lovelace",
+        "status": "PASS"
+      },
+      {
+        "name": "C07 CSS overrides survive every explicit theme in Lovelace",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 real editor filters suggestions using the HA device registry",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 approved groups save ranges, units, precision and lifetime overrides in actual HA",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 real HA retains invalid drafts without publishing them and saves corrected values",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 HA editor preserves attribute, availability, freshness and history options through toggles",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 HA device selector scopes primary suggestions without changing selected sources",
+        "status": "PASS"
+      },
+      {
+        "name": "C09 actual HA sensor groups fit a phone-width editor with native pickers",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 attribute readings use only the selected attribute inside HA",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 HA availability conditions preserve unknown and disabled states",
+        "status": "PASS"
+      },
+      {
+        "name": "C10 actual elapsed sample age expires without another HA report and recovers",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 pointer and keyboard open the real HA more-info dialog",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 long reading labels wrap and reported masonry size follows actual height",
+        "status": "PASS"
+      },
+      {
+        "name": "No uncaught browser exceptions across scenarios",
+        "status": "PASS"
+      }
+    ],
+    "native_trend_editor": [
+      {
+        "name": "C11 rendered captions consume a real HA ppm Derivative helper",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 rendered captions consume a real HA unitless Derivative helper",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 actual HA reports enforce hysteresis, source validity, units and availability",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 real elapsed derivative and primary sample expiry hide captions without a new report",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 native editor selects an actual helper, retains invalid drafts and saves the caption on reload",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 native editor saves nested age and availability settings and restores trend toggles",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 approved captions fit actual Sections and themes and preserve the native history action",
+        "status": "PASS"
+      },
+      {
+        "name": "No uncaught browser exceptions across rendered trend and native editor cases",
+        "status": "PASS"
+      }
+    ],
+    "native_layout_helper": [
+      {
+        "name": "C08 native ha-card retains the established appearance and custom properties",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 actual Sections layout uses content height and fits desktop and mobile widths",
+        "status": "PASS"
+      },
+      {
+        "name": "C08 actual card-mod v4.2.1 styles the native wrapper and existing public variables",
+        "status": "PASS"
+      },
+      {
+        "name": "C11 actual HA Derivative helper reports declared units and signed rates for the trend reader",
+        "status": "PASS"
+      },
+      {
+        "name": "No uncaught browser exceptions in native layout/helper checks",
+        "status": "PASS"
+      }
+    ],
+    "ha_api": [
+      {
+        "name": "Pinned real Home Assistant release",
+        "status": "PASS"
+      },
+      {
+        "name": "ESPHome duration metadata: iq_hoursleft",
+        "status": "PASS"
+      },
+      {
+        "name": "ESPHome duration metadata: salt_cartridge_age_days",
+        "status": "PASS"
+      },
+      {
+        "name": "ESPHome duration metadata: salt_days_since_manual_test",
+        "status": "PASS"
+      },
+      {
+        "name": "ESPHome duration metadata: salt_generation_hours",
+        "status": "PASS"
+      },
+      {
+        "name": "Number boundary 0",
+        "status": "PASS"
+      },
+      {
+        "name": "Number boundary 10",
+        "status": "PASS"
+      },
+      {
+        "name": "HA rejects number -1",
+        "status": "PASS"
+      },
+      {
+        "name": "HA rejects number 11",
+        "status": "PASS"
+      },
+      {
+        "name": "Number waits for reported state",
+        "status": "PASS"
+      },
+      {
+        "name": "Switch services round-trip",
+        "status": "PASS"
+      },
+      {
+        "name": "Fan services round-trip",
+        "status": "PASS"
+      },
+      {
+        "name": "Climate native-unit conversion",
+        "status": "PASS"
+      },
+      {
+        "name": "Select validation and round-trip",
+        "status": "PASS"
+      },
+      {
+        "name": "Manual-test button round-trip",
+        "status": "PASS"
+      },
+      {
+        "name": "Unknown and zero native readings",
+        "status": "PASS"
+      },
+      {
+        "name": "Native API disconnect/reconnect",
+        "status": "PASS"
+      },
+      {
+        "name": "Metadata migration retains entity/history",
+        "status": "PASS"
+      },
+      {
+        "name": "Generation reset recorder input",
+        "status": "PASS"
+      }
+    ],
+    "restart": [
+      {
+        "name": "Resource URL, id and type persist",
+        "status": "PASS"
+      },
+      {
+        "name": "Dashboard config persists",
+        "status": "PASS"
+      },
+      {
+        "name": "All fixture entity and registry identities persist",
+        "status": "PASS"
+      },
+      {
+        "name": "Fixture reports recover after both processes restart",
+        "status": "PASS"
+      },
+      {
+        "name": "Statistics metadata and completed repair persist",
+        "status": "PASS"
+      },
+      {
+        "name": "Previously compiled recorder statistics persist",
+        "status": "PASS"
+      },
+      {
+        "name": "Marketplace authorization and custom repository persist",
+        "status": "PASS"
+      }
+    ]
+  },
+  "bundle_sha256": "14b45a051668961169c5eed49db9c75ebc66683f3e1fded17d15384a83c1ae86",
+  "manifest_sha256": "21b54d13a96a26e50a2c0f5df4240387b9e22c1ca27f9e4789de5be8f3140b8b",
+  "scope": "Previous complete-candidate run on November 15. Packaging does not rerun HA or install partial stages. Synthetic native API peer, no ESP-IQ2020 firmware or spa bus."
+}

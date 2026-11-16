@@ -26,16 +26,13 @@ export function editorEntities(config, hass, domains, current = '') {
 /** Patch raw YAML options without materializing defaults or losing extensions. */
 export function patchSensorOption(config, id, path, value, remove = false) {
   const sensor = Object.hasOwn(config.sensors || {}, id) ? config.sensors[id] : {};
-  let next = { ...sensor };
-  if (path.length === 1) {
-    if (remove) delete next[path[0]];
-    else next = { ...next, [path[0]]: value };
-  } else {
-    let group = { ...next[path[0]] };
-    if (remove) delete group[path[1]];
-    else group = { ...group, [path[1]]: value };
-    next = { ...next, [path[0]]: group };
-  }
+  const patch = (object, [key, ...rest]) => {
+    const next = { ...object };
+    if (rest.length) return { ...next, [key]: patch(Object.hasOwn(next, key) ? next[key] : {}, rest) };
+    if (remove) delete next[key]; else return { ...next, [key]: value };
+    return next;
+  };
+  const next = patch(sensor, path);
   return { ...config, sensors: { ...config.sensors, [id]: next } };
 }
 

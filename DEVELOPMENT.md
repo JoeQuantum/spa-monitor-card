@@ -51,11 +51,19 @@ This branch adds explicit data-source/freshness contracts, registry-scoped edito
 suggestions, existing custom-sensor editing, optional native HA history access,
 long-label wrapping and masonry sizing. The approved sensor-group editor now
 covers high-value options, preserves invalid drafts until corrected/discarded,
-and retains advanced YAML options. Full localization and additional-reading
-layouts remain separate. Trend captions are covered by the packaging follow-up below. See `docs/validation/packaged-sensor-groups.md` for current
+and retains advanced YAML options. Full localization and optional temperature/ORP
+displays remain separate. See `docs/validation/packaged-sensor-groups.md` for preceding
 checks and limitations; `docs/validation/editor-data-sources.md` records the
 preceding data-source candidate.
 Earlier dated validation and packaging reports remain historical.
+
+The layout/trend follow-up adds the native `ha-card` wrapper and content-driven
+Sections defaults, with an actual card-mod compatibility check in the lab.
+The user approved Gauges with captions on November 15. Numeric trend captions
+and their editor fields now use that direction, with independently checked
+units, per-reading hysteresis and expiry/lifecycle handling. See
+`docs/validation/trend-displays.md` for current checks and boundaries;
+`docs/validation/layout-trend-foundation.md` records the preceding preparation.
 
 Keep the existing design baseline while fixing behavior. New visual directions
 require representative options, a selection and approval before rollout.
@@ -113,8 +121,4 @@ specific residual build dependency, not a claim that the complete tree is free
 of advisories. Build-tool upgrades were tested before pinning the unchanged
 runtime versions, followed by a clean installation and the complete card checks.
 
-## Layout/trend packaging progress
-
-Add optional numeric rate captions under the approved gauges, exact reported-unit matching including unitless `/h`, per-reading hysteresis, invalid-data resets and primary/derivative expiry. Accessible labels retain unrounded rates and existing history actions. Month counts show `Estimate`. Configure trends in YAML at this stage; editor fields follow in stage 3.
-
-Current packaging validation: `docs/validation/packaged-ha-layout.md`, `docs/validation/packaged-trend-captions.md`.
+Current packaging validation: `docs/validation/packaged-ha-layout.md`, `docs/validation/packaged-trend-captions.md`, `docs/validation/packaged-trend-editor.md`.

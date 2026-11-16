@@ -170,6 +170,26 @@ class SpaMonitorCardEditor extends LitElement {
               <p class="hint">Use a true sample timestamp with a timezone. An attribute uses the reading entity unless another entity is selected. No age limit or sample time is inferred.</p>`)}
             ${this._select(id, ['tap_action', 'action'], 'Reading action', [['', 'Default (no action)'], ['none', 'No action'], ['more-info', 'Open HA history and details']])}
             ${sensor.tap_action?.action === 'more-info' ? this._helperPicker(id, ['tap_action', 'entity'], 'History entity (optional)') : ''}
+            ${this._optionalGroup(id, 'trend', 'Show trend caption', html`
+              ${this._helperPicker(id, ['trend', 'entity'], 'Trend entity', sensor.trend?.attribute === undefined ? ['sensor'] : undefined)}
+              ${this._field(id, ['trend', 'attribute'], 'Trend numeric attribute')}
+              ${this._field(id, ['trend', 'unit'], 'Trend rate unit')}
+              <p class="hint">Match the trend entity's reported unit exactly, such as ppm/h or /h for a unitless reading. Use a numeric Derivative helper, not an on/off Trend helper. Smoothing is configured in that helper.</p>
+              <div class="pair">
+                ${this._field(id, ['trend', 'deadband'], 'Trend deadband', { number: true, fallback: 0 })}
+                ${this._field(id, ['trend', 'hysteresis'], 'Trend hysteresis', { number: true, fallback: 0 })}
+              </div>
+              <p class="hint">Direction starts at deadband plus hysteresis and clears at deadband minus hysteresis, in the declared rate unit. Hysteresis must not exceed deadband.</p>
+              ${this._field(id, ['trend', 'decimals'], 'Trend decimal places', { number: true, fallback: 2 })}
+              ${this._optionalGroup(id, ['trend', 'availability'], 'Require trend availability', html`
+                ${this._helperPicker(id, ['trend', 'availability', 'entity'], 'Trend availability entity')}
+                ${this._field(id, ['trend', 'availability', 'state'], 'Trend available state', { fallback: 'on' })}`)}
+              ${this._optionalGroup(id, ['trend', 'freshness'], 'Check trend sample age', html`
+                ${this._helperPicker(id, ['trend', 'freshness', 'entity'], 'Trend sample timestamp entity (optional)')}
+                ${this._field(id, ['trend', 'freshness', 'attribute'], 'Trend sample timestamp attribute')}
+                ${this._field(id, ['trend', 'freshness', 'max_age'], 'Maximum trend sample age (minutes)', { number: true, factor: 60 })}
+                <p class="hint">Use a trustworthy sample timestamp with timezone. An attribute uses the trend entity unless another entity is selected. HA update times are not sample times.</p>`)}
+              <p class="hint">The caption hides when either reading is unavailable or fails its configured age check. A zero rate does not prove freshness or safe water.</p>`)}
           ` : html`<p class="hint">Select an entity to configure this reading.</p>`}
         </div>
       </details>
@@ -177,8 +197,7 @@ class SpaMonitorCardEditor extends LitElement {
   }
 
   _value(id, path) {
-    const sensor = option(this._config.sensors, id);
-    return path.length === 1 ? option(sensor, path[0]) : option(option(sensor, path[0]), path[1]);
+    return path.reduce((value, key) => option(value, key), option(this._config.sensors, id));
   }
 
   _field(id, path, label, settings = {}) {
@@ -216,17 +235,20 @@ class SpaMonitorCardEditor extends LitElement {
       }}>${choices.map(([key, name]) => html`<option value=${key} ?selected=${value === key}>${name}</option>`)}</select></div>`;
   }
 
-  _helperPicker(id, path, label) {
+  _helperPicker(id, path, label, domains) {
     return html`<div class="field"><label>${label}</label>
       <ha-entity-picker aria-label=${label} .hass=${this.hass} .value=${this._value(id, path) || ''}
+        .includeDomains=${domains}
         allow-custom-entity @value-changed=${event => this._optionChanged(id, path, event.detail.value, !event.detail.value)}>
       </ha-entity-picker></div>`;
   }
 
   _optionalGroup(id, key, label, content) {
-    const enabled = own(this._config.sensors[id], key);
+    const path = Array.isArray(key) ? key : [key];
+    const parent = path.slice(0, -1).reduce((value, part) => option(value, part), this._config.sensors[id]);
+    const enabled = own(parent, path.at(-1));
     return html`<label class="check"><input type="checkbox" .checked=${enabled}
-      @change=${event => this._toggleOption(id, key, event.target.checked)}>${label}</label>
+      @change=${event => this._toggleOption(id, path, event.target.checked)}>${label}</label>
       ${enabled ? content : ''}`;
   }
 
@@ -250,9 +272,10 @@ class SpaMonitorCardEditor extends LitElement {
     this._publish(patchSensorOption(this._config, id, path, value, remove));
   }
   _toggleOption(id, key, enabled) {
-    const cacheKey = JSON.stringify([id, key]);
-    if (!enabled) this._removedOptions.set(cacheKey, this._config.sensors[id][key]);
-    this._optionChanged(id, [key], this._removedOptions.get(cacheKey) || {}, !enabled);
+    const path = Array.isArray(key) ? key : [key];
+    const cacheKey = JSON.stringify([id, ...path]);
+    if (!enabled) this._removedOptions.set(cacheKey, this._value(id, path));
+    this._optionChanged(id, path, this._removedOptions.get(cacheKey) || {}, !enabled);
   }
   _linearChanged(id, enabled) {
     const key = JSON.stringify([id, 'zones']);
